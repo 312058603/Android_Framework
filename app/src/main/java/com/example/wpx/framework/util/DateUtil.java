@@ -7,9 +7,9 @@ import java.util.Date;
 
 /**
  * <h3>日期工具</h3>
- * <h3>Author</h3> （王培学）
- * <h3>Date</h3> 2016/11/21 15:19
- * <h3>Copyright</h3> Copyright (c)2016 Shenzhen GuoMaiChangXing Information Technology Co., Ltd. Inc. All rights reserved.
+ * <h3>创建人</h3> （王培学）
+ * <h3>创建日期</h3> 2017/12/18 9:56
+ * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class DateUtil {
 

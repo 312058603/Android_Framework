@@ -3,16 +3,11 @@ package com.example.wpx.framework.util;
 
 import android.util.Log;
 
-import com.gmcx.safetyproject.configs.App;
-import com.gmcx.safetyproject.utils.thridutil.SDCardUtils;
-
-import org.apache.log4j.Logger;
-
 /**
- * <h3>打印调试信息</h3>
- * <h3>Author</h3> （王培学）
- * <h3>Date</h3> 2016/11/21 15:19
- * <h3>Copyright</h3> Copyright (c)2016 Shenzhen GuoMaiChangXing Information Technology Co., Ltd. Inc. All rights reserved.
+ * <h3>log调试打印</h3>
+ * <h3>创建人</h3> （王培学）
+ * <h3>创建日期</h3> 2017/12/18 9:56
+ * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class LogUtil {
 
@@ -60,12 +55,10 @@ public class LogUtil {
         }
     }
 
-    public static void writeToFile(final Object txt) {
-        if (isFileDebug) {
-            if(SDCardUtils.isSDCardEnable()){
-                final Logger log = Logger.getLogger(App.getInstance().getPackageName());
-                log.debug(txt);
-            }
+    public static void e_Throwable(String tag, String msg, Throwable e) {
+        if (isDebug) {
+            Log.e(tag, msg, e);
         }
     }
+
 }

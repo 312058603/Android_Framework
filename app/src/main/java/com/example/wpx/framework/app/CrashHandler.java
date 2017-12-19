@@ -12,11 +12,10 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 /**
- * <h3>异常信息捕获</h3>
- * TODO
- * <h3>Author</h3> （王培学）
- * <h3>Date</h3> 2017/7/18 10:41
- * <h3>Copyright</h3> Copyright (c)2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
+ * <h3>异常信息处理</h3>
+ * <h3>创建人</h3> （王培学）
+ * <h3>创建日期</h3> 2017/12/18 9:56
+ * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
@@ -48,7 +47,6 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         stringBuffer.append(ex.toString());
         stringBuffer.append(collectCrashDeviceInfo());
         stringBuffer.append(getCrashInfo(ex));
-        LogUtil.writeToFile(stringBuffer.toString());
         // 调用系统错误机制
         defaultHandler.uncaughtException(thread, ex);
         android.os.Process.killProcess(android.os.Process.myPid());

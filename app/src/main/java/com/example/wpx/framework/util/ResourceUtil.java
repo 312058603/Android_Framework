@@ -6,11 +6,10 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 
 /**
- * 资源文件工具类
- * <h3>Description</h3>
- * <h3>Author</h3> Str1ng
- * <h3>Date</h3> 16/3/15 10:26
- * <h3>Copyright</h3> Copyright (c) 2016 Shenzhen GuoMaiChangXing Information Technology Co., Ltd. Inc. All rights reserved.
+ * <h3>应用资源工具</h3>
+ * <h3>创建人</h3> （王培学）
+ * <h3>创建日期</h3> 2017/12/18 9:56
+ * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class ResourceUtil {
     /**
