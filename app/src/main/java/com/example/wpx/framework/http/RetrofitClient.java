@@ -116,10 +116,11 @@ public class RetrofitClient {
 
     /**
      * get请求
-     *
      * @param method
      * @param parameters
+     * @param tClass
      * @param listener
+     * @param <T>
      */
     public <T> void get(String method, Map<String, String> parameters, Class<T> tClass, RequstLisenerImp<T> listener) {
         apiService.executeGet(method, parameters)
@@ -155,7 +156,7 @@ public class RetrofitClient {
     }
 
     /**
-     *
+     * post请求
      * @param method
      * @param parameters
      * @param tClass
@@ -179,7 +180,7 @@ public class RetrofitClient {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        LogUtil.e(content);
+//                        LogUtil.e(content);
                         T t = JSON.parseObject(content, tClass);
                         listener.onSuccess(t);
                     }
@@ -225,6 +226,10 @@ public class RetrofitClient {
         void onComplete();
     }
 
+    /**
+     * 请求回调默认实现
+     * @param <T>
+     */
     public abstract static class RequstLisenerImp<T> implements RequstLisener<T> {
 
         private WeakReference<Context> context;

@@ -139,6 +139,7 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        //get请求测试
         if (position == 0) {
             String methodName = "";
             Map<String, String> pargrams = new HashMap();
@@ -150,8 +151,19 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
                     LogUtil.e(testModel.toString());
                 }
             });
-        } else if (position == 1) {
-
+        }
+        //post请求测试
+        else if (position == 1) {
+            String methodName = "";
+            Map<String, String> pargrams = new HashMap();
+            pargrams.put("pageSize", "5");
+            pargrams.put("curPage", "1");
+            RetrofitClient.getInstance().post(methodName, pargrams, TestModel.class, new RetrofitClient.RequstLisenerImp<TestModel>(this, true) {
+                @Override
+                public void onSuccess(TestModel testModel) {
+                    LogUtil.e(testModel.toString());
+                }
+            });
         }
     }
 
