@@ -9,29 +9,24 @@ import android.widget.ListView;
 
 import com.example.wpx.framework.R;
 import com.example.wpx.framework.adapter.TestLvAtAdapter;
-import com.example.wpx.framework.http.Observer.FileDownLoadListener;
-import com.example.wpx.framework.http.Observer.GeneralObserverListener;
+import com.example.wpx.framework.http.Observer.GetOrPostListener;
 import com.example.wpx.framework.http.RetrofitClient;
 import com.example.wpx.framework.http.model.TestModel;
 import com.example.wpx.framework.ui.base.BaseActivity;
 import com.example.wpx.framework.ui.presenter.TestAtPresenter;
 import com.example.wpx.framework.ui.view.ITestAtView;
 import com.example.wpx.framework.util.LogUtil;
-import com.example.wpx.framework.util.otherutil.SDCardUtils;
-import com.example.wpx.framework.util.otherutil.ToastUtils;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.annotations.NonNull;
 import okhttp3.ResponseBody;
 
 /**
@@ -154,7 +149,7 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
             Map<String, String> pargrams = new HashMap();
             pargrams.put("pageSize", "5");
             pargrams.put("curPage", "1");
-            RetrofitClient.getInstance().get(methodName, pargrams, this, true, TestModel.class, new GeneralObserverListener<TestModel>() {
+            RetrofitClient.getInstance().get(methodName, pargrams, this, true, TestModel.class, new GetOrPostListener<TestModel>() {
                 @Override
                 public void onSuccess(TestModel testModel) {
                     LogUtil.e(testModel.toString());
@@ -167,7 +162,7 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
             Map<String, String> pargrams = new HashMap();
             pargrams.put("pageSize", "5");
             pargrams.put("curPage", "1");
-            RetrofitClient.getInstance().post(methodName, pargrams, this, true, TestModel.class, new GeneralObserverListener<TestModel>() {
+            RetrofitClient.getInstance().post(methodName, pargrams, this, true, TestModel.class, new GetOrPostListener<TestModel>() {
                 @Override
                 public void onSuccess(TestModel testModel) {
                     LogUtil.e(testModel.toString());
@@ -178,15 +173,11 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
             RetrofitClient.getInstance().downLoadFile("http://121.37.17.177:27024/Apk/YGT_V1.2.apk", this, true, new FileDownLoadListener() {
                 @Override
                 public void dealFile(ResponseBody responseBody) {
-                    long fileSize = responseBody.contentLength();
-                    LogUtil.e("fileSize="+fileSize);
-                    if(fileSize>0){
-                        String sdPath=SDCardUtils.getSDCardPath();
-                        LogUtil.e(sdPath+"test.apk");
-                    }
+
                 }
             });
         }
     }
+
 
 }

@@ -1,7 +1,6 @@
-package com.example.wpx.framework.http.apiService;
+package com.example.wpx.framework.http.ApiService;
 
 import java.util.Map;
-
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;

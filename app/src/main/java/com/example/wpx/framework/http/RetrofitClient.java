@@ -6,25 +6,34 @@ import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.example.wpx.framework.app.App;
+import com.example.wpx.framework.config.FileConfig;
+import com.example.wpx.framework.http.ApiService.BaseApiService;
 import com.example.wpx.framework.http.Config.CacheInterceptor;
 import com.example.wpx.framework.http.Config.CookieJarImp;
 import com.example.wpx.framework.http.Config.HeaderInterceptor;
 import com.example.wpx.framework.http.Observer.BaseObserver;
-import com.example.wpx.framework.http.Observer.FileDownLoadListener;
-import com.example.wpx.framework.http.Observer.GeneralObserverListener;
-import com.example.wpx.framework.http.apiService.BaseApiService;
+import com.example.wpx.framework.http.Observer.GetOrPostListener;
+import com.example.wpx.framework.manager.DownLoadListener;
 import com.example.wpx.framework.util.LogUtil;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
@@ -122,7 +131,7 @@ public class RetrofitClient {
      * @param listener
      * @param <T>
      */
-    public <T> void get(String method, Map<String, String> parameters, Context context, boolean isShow, Class<T> tClass, GeneralObserverListener<T> listener) {
+    public <T> void get(String method, Map<String, String> parameters, Context context, boolean isShow, Class<T> tClass, GetOrPostListener<T> listener) {
         apiService.executeGet(method, parameters)
                 .compose(switchThread())
                 .subscribe(new BaseObserver<ResponseBody>(context, isShow) {
@@ -147,13 +156,60 @@ public class RetrofitClient {
      * @param fileUrl
      * @param listener
      */
-    public void downLoadFile(String fileUrl, Context context, boolean isShow, FileDownLoadListener listener) {
+    public void downLoadFile(String fileUrl, String saveFilePath, DownLoadListener listener) {
         apiService.downloadFile(fileUrl)
-                .compose(switchThread())
-                .subscribe(new BaseObserver<ResponseBody>(context, isShow) {
+                .map(new Function<ResponseBody, File>() {
                     @Override
-                    public void onNext(@NonNull ResponseBody responseBody) {
-                        listener.dealFile(responseBody);
+                    public File apply(@NonNull ResponseBody responseBody) throws Exception {
+                        try {
+                            boolean interceptFlag = false;
+                            long length = responseBody.contentLength();
+                            InputStream is = responseBody.byteStream();
+                            File ApkFile = new File(saveFilePath);
+                            FileOutputStream fos = new FileOutputStream(ApkFile);
+                            long count = 0;
+                            byte buf[] = new byte[1024];
+                            do {
+                                int numread = is.read(buf);
+                                count += numread;
+                                if (listener != null)
+                                    listener.onProgress(count, length);//文件下载进度监听
+                                if (numread <= 0) {//文件下载完成
+                                    return ApkFile;
+                                }
+                                fos.write(buf, 0, numread);
+                            } while (!interceptFlag);
+                            fos.close();
+                            is.close();
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                })
+                .compose(switchThread())
+                .safeSubscribe(new Observer<File>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull File file) {
+                        if (listener != null)
+                            listener.onDownLoadOver(file);//文件下载完成监听
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
     }
@@ -167,7 +223,7 @@ public class RetrofitClient {
      * @param listener
      * @param <T>
      */
-    public <T> void post(String method, Map<String, String> parameters, Context context, boolean isShow, Class<T> tClass, GeneralObserverListener<T> listener) {
+    public <T> void post(String method, Map<String, String> parameters, Context context, boolean isShow, Class<T> tClass, GetOrPostListener<T> listener) {
         apiService.executePost(method, parameters)
                 .compose(switchThread())
                 .subscribe(new BaseObserver<ResponseBody>(context, isShow) {
