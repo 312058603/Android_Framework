@@ -12,7 +12,7 @@
         app:srlPrimaryColor="#33aaff"
         app:srlAccentColor="@android:color/white"
         app:srlEnableRefresh="true"
-        app:srlEnableLoadmore="true">
+        app:srlEnableLoadmore="false">
         <com.scwang.smartrefresh.layout.header.ClassicsHeader
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -1,4 +1,4 @@
-package com.example.wpx.framework.http.ApiService;
+package com.example.wpx.framework.http.apiService;
 
 import java.util.Map;
 
@@ -31,16 +31,18 @@ public interface BaseApiService {
 
     /******************************************************************Get请求*****************************************************/
     /**
-     * Map表单方式get请求 无参数get请求的时候Map传null
+     * Map表单方式get请求必须加泛型String 无参数get请求的时候Map传null
+     *
      * @param method
-     * @param params
+     * @param pargrams
      * @return
      */
     @GET("{method}")
-    Observable<ResponseBody> executeGet(@Path("method") String method, @QueryMap Map<String, String> params);
+    Observable<ResponseBody> executeGet(@Path("method") String method, @QueryMap Map<String,String> pargrams);
 
     /**
      * 下载文件(例如下载APK文件)
+     *
      * @param fileUrl
      * @return
      */
@@ -51,6 +53,7 @@ public interface BaseApiService {
     /******************************************************************Post请求*****************************************************/
     /**
      * Map表单方式post请求 无参数post请求的时候Map传null
+     *
      * @param method
      * @param fields
      * @return
@@ -61,6 +64,7 @@ public interface BaseApiService {
 
     /**
      * 实体Json方式post请求
+     *
      * @param method
      * @param body
      * @return
@@ -70,6 +74,7 @@ public interface BaseApiService {
 
     /**
      * 单文件上传post请求
+     *
      * @param description
      * @param file
      * @return
@@ -80,6 +85,7 @@ public interface BaseApiService {
 
     /**
      * 不定个数多文件上传post请求
+     *
      * @param url
      * @param headers
      * @param description

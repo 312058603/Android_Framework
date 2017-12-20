@@ -7,4 +7,5 @@ package com.example.wpx.framework.config;
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class AppConfig {
+
 }

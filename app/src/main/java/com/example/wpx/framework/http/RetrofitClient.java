@@ -3,15 +3,19 @@ package com.example.wpx.framework.http;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
+
 import com.alibaba.fastjson.JSON;
 import com.example.wpx.framework.app.App;
-import com.example.wpx.framework.http.ApiService.BaseApiService;
+import com.example.wpx.framework.http.apiService.BaseApiService;
 import com.example.wpx.framework.util.LogUtil;
 import com.example.wpx.framework.util.otherutil.ToastUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
@@ -39,7 +43,7 @@ public class RetrofitClient {
     //Retrofit
     private Retrofit retrofit;
     //API服务
-    public BaseApiService apiService;
+    private BaseApiService apiService;
     //缓存文件目录
     private File httpCacheDirectory;
     //ohHttp3缓存
@@ -47,10 +51,10 @@ public class RetrofitClient {
     //网络超时限制
     private static final int DEFAULT_TIMEOUT = 20;
     //默认根URL
-    private static final String baseUrl = "http://192.168.1.120:8066/api/";
-    //单例RetrofitClient
-    private static RetrofitClient mRetrofitClient;
+//    private static final String baseUrl = "http://192.168.1.120:8066/api/";
+    private static final String baseUrl = "http://112.124.22.238:8081/course_api/wares/hot/";//BaseUrl一定要以"/"结尾 真他么坑
 
+    //单例RetrofitClient
     private static RetrofitClient instance;
 
     //定义一个共有的静态方法，返回该类型实例
@@ -117,7 +121,7 @@ public class RetrofitClient {
      * @param parameters
      * @param listener
      */
-    public void get(String method, Map parameters, RequstLisenerImp listener) {
+    public <T> void get(String method, Map<String, String> parameters, Class<T> tClass, RequstLisenerImp<T> listener) {
         apiService.executeGet(method, parameters)
                 .compose(switchThread())
                 .subscribe(new Observer<ResponseBody>() {
@@ -128,7 +132,14 @@ public class RetrofitClient {
 
                     @Override
                     public void onNext(@NonNull ResponseBody responseBody) {
-                        listener.onSuccess(responseBody);
+                        String content = null;
+                        try {
+                            content = responseBody.string();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        LogUtil.e(content);
+                        listener.onSuccess(JSON.parseObject(content, tClass));
                     }
 
                     @Override
@@ -144,13 +155,14 @@ public class RetrofitClient {
     }
 
     /**
-     * post请求
      *
      * @param method
      * @param parameters
+     * @param tClass
      * @param listener
+     * @param <T>
      */
-    public void post(String method, Map parameters, RequstLisenerImp listener) {
+    public <T> void post(String method, Map parameters, Class<T> tClass, RequstLisenerImp<T> listener) {
         apiService.executePost(method, parameters)
                 .compose(switchThread())
                 .subscribe(new Observer<ResponseBody>() {
@@ -161,7 +173,15 @@ public class RetrofitClient {
 
                     @Override
                     public void onNext(@NonNull ResponseBody responseBody) {
-                        listener.onSuccess(responseBody);
+                        String content = null;
+                        try {
+                            content = responseBody.string();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        LogUtil.e(content);
+                        T t = JSON.parseObject(content, tClass);
+                        listener.onSuccess(t);
                     }
 
                     @Override
@@ -197,18 +217,22 @@ public class RetrofitClient {
      */
     public interface RequstLisener<T> {
         void onSubscribe(Disposable d);
-        void Next(RequestBody requestBody, Class<T> tClass);
+
+        void onSuccess(T t);
+
         void onError(Throwable e);
+
         void onComplete();
     }
 
-    public abstract class RequstLisenerImp<T> implements RequstLisener<T> {
+    public abstract static class RequstLisenerImp<T> implements RequstLisener<T> {
+
         private WeakReference<Context> context;
         private ProgressDialog dialig;
         private boolean isShow;
 
-        public RequstLisenerImp(WeakReference<Context> context, boolean isShow) {
-            this.context = context;
+        public RequstLisenerImp(Context context, boolean isShow) {
+            this.context = new WeakReference(context);
             this.isShow = isShow;
         }
 
@@ -216,17 +240,9 @@ public class RetrofitClient {
             if (isShow) {
                 if (dialig == null) {
                     dialig = new ProgressDialog(context.get());
+                    dialig.setMessage("正在请求数据");
                 }
                 dialig.show();
-            }
-        }
-
-        public void Next(RequestBody requestBody, Class<T> tClass) {
-            try {
-                T t = JSON.parseObject(requestBody.toString(), tClass);
-                onSuccess(t);
-            } catch (Exception e) {
-                onError(e);
             }
         }
 
@@ -234,18 +250,21 @@ public class RetrofitClient {
 
         public void onError(Throwable e) {
             LogUtil.e_Throwable("onFailure", "网络请求异常", e);
-            ToastUtils.showShortToast(App.getContext(),"网络请求异常");
+            ToastUtils.showShortToast(App.getContext(), "网络请求异常");
+            closeDialog();
         }
 
         public void onComplete() {
+            closeDialog();
+        }
+
+        private void closeDialog() {
             if (isShow) {
                 if (dialig != null && dialig.isShowing()) {
                     dialig.dismiss();
                 }
             }
         }
-
     }
-
 
 }

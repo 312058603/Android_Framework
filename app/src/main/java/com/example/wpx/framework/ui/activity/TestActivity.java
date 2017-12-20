@@ -9,20 +9,24 @@ import android.widget.ListView;
 
 import com.example.wpx.framework.R;
 import com.example.wpx.framework.adapter.TestLvAtAdapter;
+import com.example.wpx.framework.http.RetrofitClient;
+import com.example.wpx.framework.http.model.TestModel;
 import com.example.wpx.framework.ui.base.BaseActivity;
 import com.example.wpx.framework.ui.presenter.TestAtPresenter;
 import com.example.wpx.framework.ui.view.ITestAtView;
 import com.example.wpx.framework.util.LogUtil;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
-import com.scwang.smartrefresh.layout.footer.FalsifyFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
-import com.scwang.smartrefresh.layout.header.FalsifyHeader;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import okhttp3.ResponseBody;
 
 /**
  * <h3>description</h3>
@@ -34,11 +38,10 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
 
     private RefreshLayout mRefreshLayout;
     private ClassicsHeader mClassicsHeader;
+    private ClassicsFooter mClassicsFooter;
     private ListView mListView;
     private TestLvAtAdapter mTestLvAtAdapter;
     List<String> list = new ArrayList<>();
-    private ClassicsFooter mClassicsFooter;
-
     private int pageIndex;
     private int pageSize = 15;
 
@@ -65,14 +68,9 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
     @Override
     protected void findView() {
         mRefreshLayout = (RefreshLayout) findViewById(R.id.refreshLayout);
-        //设置只使用头部模式
-        //mRefreshLayout.setRefreshHeader(new FalsifyHeader(this));
-        //设置只使用尾部模式
-        //mRefreshLayout.setEnablePureScrollMode(false);
-        //mRefreshLayout.setRefreshFooter(new FalsifyFooter(this));
-        mListView = (ListView) findViewById(R.id.listView);
         mClassicsHeader = (ClassicsHeader) mRefreshLayout.getRefreshHeader();
         mClassicsFooter = (ClassicsFooter) mRefreshLayout.getRefreshFooter();
+        mListView = (ListView) findViewById(R.id.listView);
     }
 
     @Override
@@ -114,7 +112,6 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
     private void onRefreshData() {
         pageIndex = 1;
         list.clear();
-
         for (int i = 0; i < pageIndex * pageSize; i++) {
             if (i == 0) {
                 list.add("测试get请求");
@@ -142,7 +139,20 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        if (position == 0) {
+            String methodName = "";
+            Map<String, String> pargrams = new HashMap();
+            pargrams.put("pageSize", "5");
+            pargrams.put("curPage", "1");
+            RetrofitClient.getInstance().get(methodName, pargrams, TestModel.class, new RetrofitClient.RequstLisenerImp<TestModel>(this, true) {
+                @Override
+                public void onSuccess(TestModel testModel) {
+                    LogUtil.e(testModel.toString());
+                }
+            });
+        } else if (position == 1) {
 
+        }
     }
 
 }
