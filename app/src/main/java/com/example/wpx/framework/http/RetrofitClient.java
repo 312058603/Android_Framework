@@ -1,32 +1,33 @@
 package com.example.wpx.framework.http;
 
-import android.app.ProgressDialog;
+
 import android.content.Context;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.example.wpx.framework.app.App;
+import com.example.wpx.framework.http.Config.CacheInterceptor;
+import com.example.wpx.framework.http.Config.CookieJarImp;
+import com.example.wpx.framework.http.Config.HeaderInterceptor;
+import com.example.wpx.framework.http.Observer.BaseObserver;
+import com.example.wpx.framework.http.Observer.FileDownLoadListener;
+import com.example.wpx.framework.http.Observer.GeneralObserverListener;
 import com.example.wpx.framework.http.apiService.BaseApiService;
 import com.example.wpx.framework.util.LogUtil;
-import com.example.wpx.framework.util.otherutil.ToastUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -51,9 +52,7 @@ public class RetrofitClient {
     //网络超时限制
     private static final int DEFAULT_TIMEOUT = 20;
     //默认根URL
-//    private static final String baseUrl = "http://192.168.1.120:8066/api/";
     private static final String baseUrl = "http://112.124.22.238:8081/course_api/wares/hot/";//BaseUrl一定要以"/"结尾 真他么坑
-
     //单例RetrofitClient
     private static RetrofitClient instance;
 
@@ -75,13 +74,13 @@ public class RetrofitClient {
     private RetrofitClient() {
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .cookieJar(new CookieJarImp(App.getContext()))
-                .cache(getCache())
-                .addInterceptor(new HeaderInterceptor(null))
-                .addNetworkInterceptor(new CacheInterceptor(App.getContext()))
-                .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-                .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-                .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .cookieJar(new CookieJarImp(App.getContext()))//配置Cookie
+                .cache(getCache())//配置缓存文件
+                .addInterceptor(new HeaderInterceptor(null))//配置请求头
+                .addNetworkInterceptor(new CacheInterceptor(App.getContext()))//配置网络缓存
+                .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)//配置连接超时
+                .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)//配置读数据超时
+                .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)//配置写数据超时
                 .build();
 
         retrofit = new Retrofit.Builder()
@@ -90,10 +89,10 @@ public class RetrofitClient {
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl(baseUrl)
                 .build();
+
         apiService = retrofit.create(BaseApiService.class);
 
     }
-
 
     /**
      * 初始化缓存
@@ -116,83 +115,73 @@ public class RetrofitClient {
 
     /**
      * get请求
+     *
      * @param method
      * @param parameters
      * @param tClass
      * @param listener
      * @param <T>
      */
-    public <T> void get(String method, Map<String, String> parameters, Class<T> tClass, RequstLisenerImp<T> listener) {
+    public <T> void get(String method, Map<String, String> parameters, Context context, boolean isShow, Class<T> tClass, GeneralObserverListener<T> listener) {
         apiService.executeGet(method, parameters)
                 .compose(switchThread())
-                .subscribe(new Observer<ResponseBody>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        listener.onSubscribe(d);
-                    }
-
+                .subscribe(new BaseObserver<ResponseBody>(context, isShow) {
                     @Override
                     public void onNext(@NonNull ResponseBody responseBody) {
-                        String content = null;
+                        String content = "";
                         try {
                             content = responseBody.string();
                         } catch (IOException e) {
                             e.printStackTrace();
+                            LogUtil.e_Throwable(e);
                         }
-                        LogUtil.e(content);
+                        LogUtil.e("ResponseBody", content);
                         listener.onSuccess(JSON.parseObject(content, tClass));
                     }
+                });
+    }
 
+    /**
+     * 下载文件
+     *
+     * @param fileUrl
+     * @param listener
+     */
+    public void downLoadFile(String fileUrl, Context context, boolean isShow, FileDownLoadListener listener) {
+        apiService.downloadFile(fileUrl)
+                .compose(switchThread())
+                .subscribe(new BaseObserver<ResponseBody>(context, isShow) {
                     @Override
-                    public void onError(@NonNull Throwable e) {
-                        listener.onError(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        listener.onComplete();
+                    public void onNext(@NonNull ResponseBody responseBody) {
+                        listener.dealFile(responseBody);
                     }
                 });
     }
 
     /**
      * post请求
+     *
      * @param method
      * @param parameters
      * @param tClass
      * @param listener
      * @param <T>
      */
-    public <T> void post(String method, Map parameters, Class<T> tClass, RequstLisenerImp<T> listener) {
+    public <T> void post(String method, Map<String, String> parameters, Context context, boolean isShow, Class<T> tClass, GeneralObserverListener<T> listener) {
         apiService.executePost(method, parameters)
                 .compose(switchThread())
-                .subscribe(new Observer<ResponseBody>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        listener.onSubscribe(d);
-                    }
-
+                .subscribe(new BaseObserver<ResponseBody>(context, isShow) {
                     @Override
                     public void onNext(@NonNull ResponseBody responseBody) {
-                        String content = null;
+                        String content = "";
                         try {
                             content = responseBody.string();
                         } catch (IOException e) {
                             e.printStackTrace();
+                            LogUtil.e_Throwable(e);
                         }
-//                        LogUtil.e(content);
-                        T t = JSON.parseObject(content, tClass);
-                        listener.onSuccess(t);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        listener.onError(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        listener.onComplete();
+                        LogUtil.e("ResponseBody", content);
+                        listener.onSuccess(JSON.parseObject(content, tClass));
                     }
                 });
     }
@@ -212,64 +201,4 @@ public class RetrofitClient {
             }
         };
     }
-
-    /**
-     * 请求回调
-     */
-    public interface RequstLisener<T> {
-        void onSubscribe(Disposable d);
-
-        void onSuccess(T t);
-
-        void onError(Throwable e);
-
-        void onComplete();
-    }
-
-    /**
-     * 请求回调默认实现
-     * @param <T>
-     */
-    public abstract static class RequstLisenerImp<T> implements RequstLisener<T> {
-
-        private WeakReference<Context> context;
-        private ProgressDialog dialig;
-        private boolean isShow;
-
-        public RequstLisenerImp(Context context, boolean isShow) {
-            this.context = new WeakReference(context);
-            this.isShow = isShow;
-        }
-
-        public void onSubscribe(Disposable d) {
-            if (isShow) {
-                if (dialig == null) {
-                    dialig = new ProgressDialog(context.get());
-                    dialig.setMessage("正在请求数据");
-                }
-                dialig.show();
-            }
-        }
-
-        public abstract void onSuccess(T t);
-
-        public void onError(Throwable e) {
-            LogUtil.e_Throwable("onFailure", "网络请求异常", e);
-            ToastUtils.showShortToast(App.getContext(), "网络请求异常");
-            closeDialog();
-        }
-
-        public void onComplete() {
-            closeDialog();
-        }
-
-        private void closeDialog() {
-            if (isShow) {
-                if (dialig != null && dialig.isShowing()) {
-                    dialig.dismiss();
-                }
-            }
-        }
-    }
-
 }

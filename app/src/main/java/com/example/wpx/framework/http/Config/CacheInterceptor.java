@@ -1,7 +1,6 @@
-package com.example.wpx.framework.http;
+package com.example.wpx.framework.http.Config;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.example.wpx.framework.util.LogUtil;
 import com.example.wpx.framework.util.otherutil.NetworkUtils;
@@ -46,12 +45,6 @@ public class CacheInterceptor implements Interceptor {
         }
         //在没网络的情况下设置缓存超时时间为3天
         else {
-//            ((Activity) context).runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Toast.makeText(context, "当前无网络! 为你智能加载缓存", Toast.LENGTH_SHORT).show();
-//                }
-//            });
             LogUtil.e("CacheRequest", " no network load cahe");
             request = request.newBuilder()
                     .cacheControl(CacheControl.FORCE_CACHE)

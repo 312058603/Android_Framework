@@ -55,9 +55,9 @@ public class LogUtil {
         }
     }
 
-    public static void e_Throwable(String tag, String msg, Throwable e) {
+    public static void e_Throwable(Throwable e) {
         if (isDebug) {
-            Log.e(tag, msg, e);
+            Log.e(TAG, "打印异常信息", e);
         }
     }
 

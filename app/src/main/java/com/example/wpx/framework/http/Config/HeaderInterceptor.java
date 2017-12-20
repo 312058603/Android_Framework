@@ -1,4 +1,4 @@
-package com.example.wpx.framework.http;
+package com.example.wpx.framework.http.Config;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;

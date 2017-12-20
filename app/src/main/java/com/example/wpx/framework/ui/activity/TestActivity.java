@@ -9,23 +9,29 @@ import android.widget.ListView;
 
 import com.example.wpx.framework.R;
 import com.example.wpx.framework.adapter.TestLvAtAdapter;
+import com.example.wpx.framework.http.Observer.FileDownLoadListener;
+import com.example.wpx.framework.http.Observer.GeneralObserverListener;
 import com.example.wpx.framework.http.RetrofitClient;
 import com.example.wpx.framework.http.model.TestModel;
 import com.example.wpx.framework.ui.base.BaseActivity;
 import com.example.wpx.framework.ui.presenter.TestAtPresenter;
 import com.example.wpx.framework.ui.view.ITestAtView;
 import com.example.wpx.framework.util.LogUtil;
+import com.example.wpx.framework.util.otherutil.SDCardUtils;
+import com.example.wpx.framework.util.otherutil.ToastUtils;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.annotations.NonNull;
 import okhttp3.ResponseBody;
 
 /**
@@ -117,7 +123,10 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
                 list.add("测试get请求");
             } else if (i == 1) {
                 list.add("测试post请求");
-            } else {
+            }else if(i==2){
+                list.add("测试文件下载");
+            }
+            else {
                 list.add("第" + (i + 1) + "条数据");
             }
         }
@@ -139,29 +148,42 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        //get请求测试
+        //get表单请求测试
         if (position == 0) {
             String methodName = "";
             Map<String, String> pargrams = new HashMap();
             pargrams.put("pageSize", "5");
             pargrams.put("curPage", "1");
-            RetrofitClient.getInstance().get(methodName, pargrams, TestModel.class, new RetrofitClient.RequstLisenerImp<TestModel>(this, true) {
+            RetrofitClient.getInstance().get(methodName, pargrams, this, true, TestModel.class, new GeneralObserverListener<TestModel>() {
                 @Override
                 public void onSuccess(TestModel testModel) {
                     LogUtil.e(testModel.toString());
                 }
             });
         }
-        //post请求测试
+        //post表单请求测试
         else if (position == 1) {
             String methodName = "";
             Map<String, String> pargrams = new HashMap();
             pargrams.put("pageSize", "5");
             pargrams.put("curPage", "1");
-            RetrofitClient.getInstance().post(methodName, pargrams, TestModel.class, new RetrofitClient.RequstLisenerImp<TestModel>(this, true) {
+            RetrofitClient.getInstance().post(methodName, pargrams, this, true, TestModel.class, new GeneralObserverListener<TestModel>() {
                 @Override
                 public void onSuccess(TestModel testModel) {
                     LogUtil.e(testModel.toString());
+                }
+            });
+        }
+        else if(position==2){
+            RetrofitClient.getInstance().downLoadFile("http://121.37.17.177:27024/Apk/YGT_V1.2.apk", this, true, new FileDownLoadListener() {
+                @Override
+                public void dealFile(ResponseBody responseBody) {
+                    long fileSize = responseBody.contentLength();
+                    LogUtil.e("fileSize="+fileSize);
+                    if(fileSize>0){
+                        String sdPath=SDCardUtils.getSDCardPath();
+                        LogUtil.e(sdPath+"test.apk");
+                    }
                 }
             });
         }
