@@ -3,18 +3,15 @@ package com.example.wpx.framework.http;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
-
 import com.alibaba.fastjson.JSON;
 import com.example.wpx.framework.app.App;
 import com.example.wpx.framework.http.ApiService.BaseApiService;
 import com.example.wpx.framework.util.LogUtil;
 import com.example.wpx.framework.util.otherutil.ToastUtils;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
@@ -178,6 +175,7 @@ public class RetrofitClient {
                     }
                 });
     }
+
 
     /**
      * 组合Rx

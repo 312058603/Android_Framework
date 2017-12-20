@@ -7,7 +7,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+
 import com.example.wpx.framework.app.App;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
 
     protected IntentFilter mFilter;
 
-    protected List<String> mActionList=new ArrayList<>();
+    protected List<String> mActionList = new ArrayList<>();
 
     protected T mPresenter;
 
@@ -31,30 +33,29 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.activities.add(this);
-        init();
-        initReceiver();
         //判断是否使用MVP模式
         mPresenter = createPresenter();
         if (mPresenter != null) {
             mPresenter.attachView((V) this);//因为之后所有的子类都要实现对应的View接口
         }
         //子类不再需要设置布局ID，也不再需要使用ButterKnife.bind()
+        setContentViewBefore();
         setContentView(getContentViewId());
+        initReceiver();
         findView();
+        initListener();
         initIntentData();
         initData();
-        initListener();
     }
 
 
     //在setContentView()调用之前调用，可以设置WindowFeature(如：this.requestWindowFeature(Window.FEATURE_NO_TITLE);)
-    protected void init() {
+    protected void setContentViewBefore() {
     }
 
     private void initReceiver() {
         mFilter = new IntentFilter();
-        initActions();
-        addFilter(mActionList);
+        addFilters();
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -64,34 +65,6 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
         registerReceiver(mReceiver, mFilter);
     }
 
-    private void addFilter(List<String> actionList) {
-        if(mActionList!=null && mActionList.size()>0){
-            for (String action : actionList) {
-                mFilter.addAction(action);
-            }
-        }
-    }
-
-    protected void initActions(){
-
-    }
-
-    protected void onReceive(Context context, Intent intent) {
-
-    }
-
-    protected void findView() {
-    }
-
-    protected void initIntentData() {
-
-    }
-
-    protected void initData() {
-    }
-
-    protected void initListener() {
-    }
 
     //用于创建Presenter和判断是否使用MVP模式(由子类实现)
     protected abstract T createPresenter();
@@ -99,13 +72,25 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
     //得到当前界面的布局文件id(由子类实现)
     protected abstract int getContentViewId();
 
+    protected abstract void addFilters();
+
+    protected abstract void onReceive(Context context, Intent intent);
+
+    protected abstract void findView();
+
+    protected abstract void initListener();
+
+    protected abstract void initIntentData();
+
+    protected abstract void initData();
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mPresenter != null) {
             mPresenter.detachView();
         }
-        if(mReceiver!=null){
+        if (mReceiver != null) {
             unregisterReceiver(mReceiver);
         }
     }
