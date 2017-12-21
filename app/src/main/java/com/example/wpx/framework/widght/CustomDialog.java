@@ -10,12 +10,12 @@ import android.view.Window;
 import android.view.WindowManager;
 
 /**
- * @创建者 CSDN_LQR
- * @描述 自定义圆角的dialog
+ * <h3>description</h3>
+ * <h3>创建人</h3> （王培学）
+ * <h3>创建日期</h3> 2017/12/21 12:00
+ * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class CustomDialog extends Dialog {
-
-
     /**
      * 宽高由布局文件中指定（但是最底层的宽度无效，可以多嵌套一层解决）
      */
@@ -38,8 +38,7 @@ public class CustomDialog extends Dialog {
     /**
      * 宽高由该方法的参数设置
      */
-    public CustomDialog(Context context, int width, int height, View layout,
-                        int style) {
+    public CustomDialog(Context context, int width, int height, View layout, int style) {
         super(context, style);
         // 设置内容
         setContentView(layout);
@@ -66,5 +65,4 @@ public class CustomDialog extends Dialog {
         DisplayMetrics dm = res.getDisplayMetrics();
         return dm.density;
     }
-
 }

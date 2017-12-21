@@ -1,4 +1,4 @@
-package com.example.wpx.framework.http.model;
+package com.example.wpx.framework.http.model.Response;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import java.util.List;
  * <h3>创建日期</h3> 2017/12/18 9:56
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
-public class TestModel {
+public class TestResponseModel {
 
     /**
      * copyright : 本API接口只允许菜鸟窝(https://www.cniao5.com)用户使用,其他机构或者个人使用均为侵权行为
@@ -175,7 +175,7 @@ public class TestModel {
 
     @Override
     public String toString() {
-        return "TestModel{" +
+        return "TestResponseModel{" +
                 "copyright='" + copyright + '\'' +
                 ", totalCount=" + totalCount +
                 ", currentPage=" + currentPage +

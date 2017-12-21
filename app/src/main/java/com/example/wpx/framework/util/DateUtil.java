@@ -28,6 +28,16 @@ public class DateUtil {
 
 
     /**
+     * Date转时间字符转
+     * @param date
+     * @return
+     */
+    public static String getTimeByDate(Date date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return format.format(date);
+    }
+
+    /**
      * 获取指定时间的指定格式
      * @return
      */

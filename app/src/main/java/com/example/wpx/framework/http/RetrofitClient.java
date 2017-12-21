@@ -3,7 +3,6 @@ package com.example.wpx.framework.http;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.alibaba.fastjson.JSON;
 import com.example.wpx.framework.app.App;
 import com.example.wpx.framework.http.ApiService.BaseApiService;
@@ -14,7 +13,6 @@ import com.example.wpx.framework.http.Observer.BaseObserver;
 import com.example.wpx.framework.http.Observer.DownLoadListener;
 import com.example.wpx.framework.http.Observer.GetOrPostListener;
 import com.example.wpx.framework.util.LogUtil;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,7 +20,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
@@ -34,10 +31,11 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.fastjson.FastJsonConverterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * <h3>Retrofit网络请求</h3>
@@ -57,7 +55,7 @@ public class RetrofitClient {
     private Cache cache;
     //网络超时限制
     private static final int DEFAULT_TIMEOUT = 20;
-    //默认根URL
+    //默认根URL 测试 get post表单
     private static final String baseUrl = "http://112.124.22.238:8081/course_api/wares/hot/";//BaseUrl一定要以"/"结尾 真他么坑
     //单例RetrofitClient
     private static RetrofitClient instance;
@@ -91,7 +89,7 @@ public class RetrofitClient {
 
         retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .addConverterFactory(FastJsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl(baseUrl)
                 .build();
@@ -241,11 +239,41 @@ public class RetrofitClient {
                 });
     }
 
-
-
+    /**
+     * post提交json字符串
+     *
+     * @param method
+     * @param context
+     * @param isShow
+     * @param s
+     * @param tClass
+     * @param listener
+     * @param <S>
+     * @param <R>
+     */
+    public <S, R> void json(String method, Context context, boolean isShow, S s, Class<R> tClass, GetOrPostListener<R> listener) {
+        String jsonStr = JSON.toJSONString(s);
+        RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), jsonStr);
+        apiService.executeJson(method, requestBody)
+                .compose(switchThread())
+                .subscribe(new BaseObserver<ResponseBody>(context, isShow) {
+                    @Override
+                    public void onNext(@NonNull ResponseBody responseBody) {
+                        String content = "";
+                        try {
+                            content = responseBody.string();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            LogUtil.e_Throwable(e);
+                        }
+                        LogUtil.e("ResponseBody", content);
+                        listener.onSuccess(JSON.parseObject(content, tClass));
+                    }
+                });
+    }
 
     /**
-     * 组合Rx
+     * 组合Rx线程切换封装
      *
      * @param <T>
      * @return

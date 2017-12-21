@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
  * <h3>创建日期</h3> 2017/12/18 9:56
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
-public class ByteUtil {
+public class ByteConvertUtil {
 
     public static byte[] str2Bcd(String asc) {
         int len = asc.length();
@@ -219,11 +219,9 @@ public class ByteUtil {
         return new String(bytes, Charset.forName(charsetName));
     }
 
-
     public static String bytesToGBKString(byte[] bytes) {
         return bytesToString(bytes, "GBK");
     }
-
 
     public static String bytesToHexString(byte[] src) {
         StringBuilder stringBuilder = new StringBuilder("");
