@@ -1,6 +1,7 @@
 package com.example.wpx.framework.ui.activity;
 
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,32 +10,32 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bigkoo.pickerview.OptionsPickerView;
 import com.bigkoo.pickerview.TimePickerView;
 import com.bigkoo.pickerview.listener.CustomListener;
 import com.example.wpx.framework.R;
 import com.example.wpx.framework.adapter.TestLvAtAdapter;
+import com.example.wpx.framework.config.BroadcastFilterConfig;
 import com.example.wpx.framework.config.FileConfig;
 import com.example.wpx.framework.config.PCCConfig;
-import com.example.wpx.framework.http.Observer.DownLoadListener;
-import com.example.wpx.framework.http.Observer.GetOrPostListener;
+import com.example.wpx.framework.http.observer.DownLoadListener;
+import com.example.wpx.framework.http.observer.GetOrPostListener;
 import com.example.wpx.framework.http.RetrofitClient;
 import com.example.wpx.framework.http.model.Request.TestJsonModel;
 import com.example.wpx.framework.http.model.Response.TestResponseModel;
+import com.example.wpx.framework.service.ble.BleClientService;
 import com.example.wpx.framework.ui.base.BaseActivity;
-import com.example.wpx.framework.ui.presenter.TestAtPresenter;
-import com.example.wpx.framework.ui.view.ITestAtView;
+import com.example.wpx.framework.ui.presenter.MainTestAtPresenter;
+import com.example.wpx.framework.ui.view.IMainTestAtView;
 import com.example.wpx.framework.util.DateUtil;
+import com.example.wpx.framework.util.IntentUtil;
 import com.example.wpx.framework.util.LogUtil;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
-
-import junit.framework.TestResult;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ import java.util.Map;
  * <h3>创建日期</h3> 2017/12/18 9:56
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
-public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> implements OnRefreshListener, OnLoadmoreListener, AdapterView.OnItemClickListener {
+public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPresenter> implements OnRefreshListener, OnLoadmoreListener, AdapterView.OnItemClickListener {
 
     private RefreshLayout mRefreshLayout;
     private ClassicsHeader mClassicsHeader;
@@ -64,9 +65,10 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
     private TimePickerView pvCustomTime;
     private OptionsPickerView pvOptions;
 
+    private static final int REQUEST_ENABLE_BT = 1;
 
     @Override
-    protected TestAtPresenter createPresenter() {
+    protected MainTestAtPresenter createPresenter() {
         return null;
     }
 
@@ -77,12 +79,17 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
 
     @Override
     protected void addFilters() {
-
+        mFilter.addAction(BroadcastFilterConfig.ACTION_OPENBLE);
     }
 
     @Override
     protected void onReceive(Context context, Intent intent) {
-
+        switch (intent.getAction()){
+            case BroadcastFilterConfig.ACTION_OPENBLE:
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                break;
+        }
     }
 
     @Override
@@ -107,6 +114,7 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
 
     @Override
     protected void initData() {
+        startService(new Intent(this, BleClientService.class));
         mTestLvAtAdapter = new TestLvAtAdapter(this, list);
         mListView.setAdapter(mTestLvAtAdapter);
         onRefreshData();
@@ -150,6 +158,10 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
                 list.add("时间选择器控件");
             } else if (i == 7) {
                 list.add("城市列表控件");
+            } else if (i == 8) {
+                list.add("数据选择器控件");
+            } else if (i == 9) {
+                list.add("Ble测试");
             } else {
                 list.add("第" + (i + 1) + "条数据");
             }
@@ -212,7 +224,9 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
                     LogUtil.e("onDownLoadOver file.exists()=" + file.exists());
                 }
             });
-        } else if (position == 3) {
+        }
+        //Json提交
+        else if (position == 3) {
             String method = "";
             TestJsonModel testJsonModel = new TestJsonModel();
             testJsonModel.setCurPage("1");
@@ -227,6 +241,10 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
             pvCustomTime.show();
         } else if (position == 7) {
             ShowPickerView();
+        } else if (position == 8) {
+            initOptionPicker();
+        } else if (position == 9) {
+            IntentUtil.startActivity(this, BleTestActivity.class);
         }
     }
 
@@ -311,6 +329,33 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
         /*pvOptions.setPicker(options1Items);//一级选择器
         pvOptions.setPicker(options1Items, options2Items);//二级选择器*/
         pvOptions.setPicker(PCCConfig.optionsProviceItems, PCCConfig.optionsCityItems, PCCConfig.optionsCountyItems);//三级选择器
+        pvOptions.show();
+    }
+
+    /**
+     * 数据选择器
+     */
+    private void initOptionPicker() {
+        ArrayList<Integer> dataItems = new ArrayList<>();
+        dataItems.add(180);
+        dataItems.add(181);
+        dataItems.add(182);
+        dataItems.add(183);
+        dataItems.add(184);
+        dataItems.add(185);
+        pvOptions = new OptionsPickerView.Builder(this, new OptionsPickerView.OnOptionsSelectListener() {
+            @Override
+            public void onOptionsSelect(int options1, int options2, int options3, View v) {
+                int data = dataItems.get(options1);
+                LogUtil.e("数据设置:" + data);
+            }
+        })
+                .setTitleText("身高选择")
+                .setSelectOptions(0)//默认选中项
+                .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+                .setLabels("厘米", null, null)
+                .build();
+        pvOptions.setPicker(dataItems);//一级选择器
         pvOptions.show();
     }
 

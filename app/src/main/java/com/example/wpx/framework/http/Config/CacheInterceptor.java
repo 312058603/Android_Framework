@@ -1,4 +1,4 @@
-package com.example.wpx.framework.http.Config;
+package com.example.wpx.framework.http.config;
 
 import android.content.Context;
 

@@ -63,7 +63,6 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.8.1'
-    compile 'com.alibaba:fastjson:1.2.41'
 
     //下拉与上拉控件
     compile 'com.scwang.smartrefresh:SmartRefreshLayout:1.0.3'

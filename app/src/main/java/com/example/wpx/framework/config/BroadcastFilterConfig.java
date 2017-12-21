@@ -8,4 +8,6 @@ package com.example.wpx.framework.config;
  */
 public class BroadcastFilterConfig {
 
+    public static final String ACTION_OPENBLE="action_OpenBle";
+
 }

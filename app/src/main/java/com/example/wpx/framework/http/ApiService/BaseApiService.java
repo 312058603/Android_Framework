@@ -1,4 +1,4 @@
-package com.example.wpx.framework.http.ApiService;
+package com.example.wpx.framework.http.apiService;
 
 import java.util.Map;
 import io.reactivex.Observable;
