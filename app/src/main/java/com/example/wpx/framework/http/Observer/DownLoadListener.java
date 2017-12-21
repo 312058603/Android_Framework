@@ -1,4 +1,4 @@
-package com.example.wpx.framework.manager;
+package com.example.wpx.framework.http.Observer;
 
 import java.io.File;
 

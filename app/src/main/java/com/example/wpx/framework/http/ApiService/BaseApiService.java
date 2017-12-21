@@ -69,7 +69,7 @@ public interface BaseApiService {
      * @return
      */
     @POST("{method}")
-    Observable<ResponseBody> json(@Path("method") String method, @Body RequestBody body);
+    Observable<ResponseBody> executeJson(@Path("method") String method, @Body RequestBody body);
 
     /**
      * 单文件上传post请求

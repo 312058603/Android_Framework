@@ -9,6 +9,7 @@ import android.widget.ListView;
 
 import com.example.wpx.framework.R;
 import com.example.wpx.framework.adapter.TestLvAtAdapter;
+import com.example.wpx.framework.config.FileConfig;
 import com.example.wpx.framework.http.Observer.GetOrPostListener;
 import com.example.wpx.framework.http.RetrofitClient;
 import com.example.wpx.framework.http.model.TestModel;
@@ -22,12 +23,11 @@ import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import okhttp3.ResponseBody;
 
 /**
  * <h3>description</h3>
@@ -118,10 +118,9 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
                 list.add("测试get请求");
             } else if (i == 1) {
                 list.add("测试post请求");
-            }else if(i==2){
+            } else if (i == 2) {
                 list.add("测试文件下载");
-            }
-            else {
+            } else {
                 list.add("第" + (i + 1) + "条数据");
             }
         }
@@ -169,11 +168,18 @@ public class TestActivity extends BaseActivity<ITestAtView, TestAtPresenter> imp
                 }
             });
         }
-        else if(position==2){
-            RetrofitClient.getInstance().downLoadFile("http://121.37.17.177:27024/Apk/YGT_V1.2.apk", this, true, new FileDownLoadListener() {
+        //文件下载
+        else if (position == 2) {
+            String aplUrl = "http://121.37.17.177:27024/Apk/YGT_V1.2.apk";
+            RetrofitClient.getInstance().downLoadFile(aplUrl, FileConfig.PATH_UPDATE_APK, new DownLoadListener() {
                 @Override
-                public void dealFile(ResponseBody responseBody) {
+                public void onProgress(long position, long fileSize) {
+                    LogUtil.e("position=" + position + ",fileSize=" + fileSize);
+                }
 
+                @Override
+                public void onDownLoadOver(File file) {
+                    LogUtil.e("onDownLoadOver file.exists()="+file.exists());
                 }
             });
         }

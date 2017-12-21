@@ -6,23 +6,20 @@ import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.example.wpx.framework.app.App;
-import com.example.wpx.framework.config.FileConfig;
 import com.example.wpx.framework.http.ApiService.BaseApiService;
 import com.example.wpx.framework.http.Config.CacheInterceptor;
 import com.example.wpx.framework.http.Config.CookieJarImp;
 import com.example.wpx.framework.http.Config.HeaderInterceptor;
 import com.example.wpx.framework.http.Observer.BaseObserver;
+import com.example.wpx.framework.http.Observer.DownLoadListener;
 import com.example.wpx.framework.http.Observer.GetOrPostListener;
-import com.example.wpx.framework.manager.DownLoadListener;
 import com.example.wpx.framework.util.LogUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -162,25 +159,28 @@ public class RetrofitClient {
                     @Override
                     public File apply(@NonNull ResponseBody responseBody) throws Exception {
                         try {
-                            boolean interceptFlag = false;
-                            long length = responseBody.contentLength();
+                            long fileSize = responseBody.contentLength();
                             InputStream is = responseBody.byteStream();
-                            File ApkFile = new File(saveFilePath);
-                            FileOutputStream fos = new FileOutputStream(ApkFile);
-                            long count = 0;
+                            File apkFile = new File(saveFilePath);
+                            FileOutputStream fos = new FileOutputStream(apkFile);
                             byte buf[] = new byte[1024];
-                            do {
-                                int numread = is.read(buf);
-                                count += numread;
-                                if (listener != null)
-                                    listener.onProgress(count, length);//文件下载进度监听
-                                if (numread <= 0) {//文件下载完成
-                                    return ApkFile;
+                            long count = 0;
+                            int tempLen = 0;
+                            while ((tempLen = is.read(buf)) != -1) {
+                                count += tempLen;
+                                if (listener != null) {
+                                    listener.onProgress(count, fileSize);//文件下载进度监听
                                 }
-                                fos.write(buf, 0, numread);
-                            } while (!interceptFlag);
+                                fos.write(buf, 0, tempLen);
+                            }
+                            if (tempLen == -1) {
+                                if (listener != null) {
+                                    listener.onDownLoadOver(apkFile);//文件下载完成监听
+                                }
+                            }
                             fos.close();
                             is.close();
+                            return apkFile;
                         } catch (MalformedURLException e) {
                             e.printStackTrace();
                         } catch (IOException e) {
@@ -190,7 +190,7 @@ public class RetrofitClient {
                     }
                 })
                 .compose(switchThread())
-                .safeSubscribe(new Observer<File>() {
+                .subscribe(new Observer<File>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
 
@@ -198,8 +198,7 @@ public class RetrofitClient {
 
                     @Override
                     public void onNext(@NonNull File file) {
-                        if (listener != null)
-                            listener.onDownLoadOver(file);//文件下载完成监听
+
                     }
 
                     @Override
@@ -241,6 +240,8 @@ public class RetrofitClient {
                     }
                 });
     }
+
+
 
 
     /**

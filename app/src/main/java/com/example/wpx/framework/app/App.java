@@ -1,6 +1,7 @@
 package com.example.wpx.framework.app;
 
 import com.example.wpx.framework.app.base.BaseApp;
+import com.example.wpx.framework.config.FileConfig;
 
 import org.litepal.LitePal;
 
@@ -15,6 +16,8 @@ public class App extends BaseApp{
     @Override
     public void onCreate() {
         super.onCreate();
+        //初始化应用文件夹
+        FileConfig.createFile();
         //初始化LitePal
         LitePal.initialize(this);
         //错误信息处理
