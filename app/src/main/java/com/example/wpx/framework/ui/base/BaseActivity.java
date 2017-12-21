@@ -21,22 +21,22 @@ import java.util.List;
  */
 public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCompatActivity {
 
-    protected BroadcastReceiver mReceiver;
+    protected BroadcastReceiver receiver;
 
-    protected IntentFilter mFilter;
+    protected IntentFilter filter;
 
-    protected List<String> mActionList = new ArrayList<>();
+    protected List<String> actionList = new ArrayList<>();
 
-    protected T mPresenter;
+    protected T presenter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.activities.add(this);
         //判断是否使用MVP模式
-        mPresenter = createPresenter();
-        if (mPresenter != null) {
-            mPresenter.attachView((V) this);//因为之后所有的子类都要实现对应的View接口
+        presenter = createPresenter();
+        if (presenter != null) {
+            presenter.attachView((V) this);//因为之后所有的子类都要实现对应的View接口
         }
         //子类不再需要设置布局ID，也不再需要使用ButterKnife.bind()
         setContentViewBefore();
@@ -54,15 +54,15 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
     }
 
     private void initReceiver() {
-        mFilter = new IntentFilter();
+        filter = new IntentFilter();
         addFilters();
-        mReceiver = new BroadcastReceiver() {
+        receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 BaseActivity.this.onReceive(context, intent);
             }
         };
-        registerReceiver(mReceiver, mFilter);
+        registerReceiver(receiver, filter);
     }
 
 
@@ -87,11 +87,11 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mPresenter != null) {
-            mPresenter.detachView();
+        if (presenter != null) {
+            presenter.detachView();
         }
-        if (mReceiver != null) {
-            unregisterReceiver(mReceiver);
+        if (receiver != null) {
+            unregisterReceiver(receiver);
         }
     }
 

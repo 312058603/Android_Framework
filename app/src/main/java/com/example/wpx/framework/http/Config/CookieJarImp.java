@@ -20,7 +20,7 @@ public class CookieJarImp implements CookieJar {
 
     private static final String TAG = "NovateCookieManger";
 
-    private Context mContext;
+    private Context context;
 
     private static PersistentCookieStore cookieStore;
 
@@ -28,9 +28,9 @@ public class CookieJarImp implements CookieJar {
      * Mandatory constructor for the NovateCookieManger
      */
     public CookieJarImp(Context context) {
-        mContext = context;
+        context = context;
         if (cookieStore == null) {
-            cookieStore = new PersistentCookieStore(mContext);
+            cookieStore = new PersistentCookieStore(context);
         }
     }
 

@@ -10,7 +10,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.bigkoo.pickerview.OptionsPickerView;
 import com.bigkoo.pickerview.TimePickerView;
 import com.bigkoo.pickerview.listener.CustomListener;
@@ -19,12 +18,12 @@ import com.example.wpx.framework.adapter.TestLvAtAdapter;
 import com.example.wpx.framework.config.BroadcastFilterConfig;
 import com.example.wpx.framework.config.FileConfig;
 import com.example.wpx.framework.config.PCCConfig;
+import com.example.wpx.framework.hardware.bluetooth.ble.BleClientService;
 import com.example.wpx.framework.http.observer.DownLoadListener;
 import com.example.wpx.framework.http.observer.GetOrPostListener;
 import com.example.wpx.framework.http.RetrofitClient;
 import com.example.wpx.framework.http.model.Request.TestJsonModel;
 import com.example.wpx.framework.http.model.Response.TestResponseModel;
-import com.example.wpx.framework.service.ble.BleClientService;
 import com.example.wpx.framework.ui.base.BaseActivity;
 import com.example.wpx.framework.ui.presenter.MainTestAtPresenter;
 import com.example.wpx.framework.ui.view.IMainTestAtView;
@@ -36,7 +35,6 @@ import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -53,11 +51,11 @@ import java.util.Map;
  */
 public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPresenter> implements OnRefreshListener, OnLoadmoreListener, AdapterView.OnItemClickListener {
 
-    private RefreshLayout mRefreshLayout;
-    private ClassicsHeader mClassicsHeader;
-    private ClassicsFooter mClassicsFooter;
-    private ListView mListView;
-    private TestLvAtAdapter mTestLvAtAdapter;
+    private RefreshLayout refreshLayout;
+    private ClassicsHeader classicsHeader;
+    private ClassicsFooter classicsFooter;
+    private ListView listView;
+    private TestLvAtAdapter testLvAtAdapter;
     List<String> list = new ArrayList<>();
     private int pageIndex;
     private int pageSize = 15;
@@ -94,17 +92,17 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
 
     @Override
     protected void findView() {
-        mRefreshLayout = (RefreshLayout) findViewById(R.id.refreshLayout);
-        mClassicsHeader = (ClassicsHeader) mRefreshLayout.getRefreshHeader();
-        mClassicsFooter = (ClassicsFooter) mRefreshLayout.getRefreshFooter();
-        mListView = (ListView) findViewById(R.id.listView);
+        refreshLayout = (RefreshLayout) findViewById(R.id.refreshLayout);
+        classicsHeader = (ClassicsHeader) refreshLayout.getRefreshHeader();
+        classicsFooter = (ClassicsFooter) refreshLayout.getRefreshFooter();
+        listView = (ListView) findViewById(R.id.listView);
     }
 
     @Override
     protected void initListener() {
-        mRefreshLayout.setOnRefreshListener(this);
-        mRefreshLayout.setOnLoadmoreListener(this);
-        mListView.setOnItemClickListener(this);
+        refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setOnLoadmoreListener(this);
+        listView.setOnItemClickListener(this);
     }
 
     @Override
@@ -115,8 +113,8 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
     @Override
     protected void initData() {
         startService(new Intent(this, BleClientService.class));
-        mTestLvAtAdapter = new TestLvAtAdapter(this, list);
-        mListView.setAdapter(mTestLvAtAdapter);
+        testLvAtAdapter = new TestLvAtAdapter(this, list);
+        listView.setAdapter(testLvAtAdapter);
         onRefreshData();
         initCustomTimePicker();
     }
@@ -166,8 +164,8 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
                 list.add("第" + (i + 1) + "条数据");
             }
         }
-        mTestLvAtAdapter.notifyDataSetChanged();
-        mRefreshLayout.finishRefresh();
+        testLvAtAdapter.notifyDataSetChanged();
+        refreshLayout.finishRefresh();
     }
 
     /**
@@ -177,8 +175,8 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
         for (int i = pageIndex * pageSize; i < (pageIndex + 1) * pageSize; i++) {
             list.add("第" + (i + 1) + "条数据");
         }
-        mTestLvAtAdapter.notifyDataSetChanged();
-        mRefreshLayout.finishLoadmore();
+        testLvAtAdapter.notifyDataSetChanged();
+        refreshLayout.finishLoadmore();
         pageIndex += 1;
     }
 

@@ -1,12 +1,9 @@
 package com.example.wpx.framework.http.config;
 
 import android.content.Context;
-
 import com.example.wpx.framework.util.LogUtil;
 import com.example.wpx.framework.util.otherutil.NetworkUtils;
-
 import java.io.IOException;
-
 import okhttp3.CacheControl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
