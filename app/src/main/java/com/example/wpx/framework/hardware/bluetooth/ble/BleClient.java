@@ -6,24 +6,21 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import com.example.wpx.framework.app.App;
-import com.example.wpx.framework.config.BroadcastFilterConfig;
-import com.example.wpx.framework.util.IntentUtil;
+import android.support.annotation.RequiresApi;
 import com.example.wpx.framework.util.LogUtil;
 import com.example.wpx.framework.util.otherutil.ToastUtils;
-
 import java.util.List;
 
 /**
  * Created by Administrator on 2017/12/21 0021.
  */
 
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class BleClient {
 
     private Context context;
@@ -106,7 +103,9 @@ public class BleClient {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             if(device.getName().equals("123456")){
-                device.connectGatt(context,false,bluetoothGattCallback);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    device.connectGatt(context,false,bluetoothGattCallback);
+                }
             }
         }
     };

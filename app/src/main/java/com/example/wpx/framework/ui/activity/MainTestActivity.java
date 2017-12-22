@@ -18,7 +18,6 @@ import com.example.wpx.framework.adapter.TestLvAtAdapter;
 import com.example.wpx.framework.config.BroadcastFilterConfig;
 import com.example.wpx.framework.config.FileConfig;
 import com.example.wpx.framework.config.PCCConfig;
-import com.example.wpx.framework.hardware.bluetooth.ble.BleClientService;
 import com.example.wpx.framework.http.observer.DownLoadListener;
 import com.example.wpx.framework.http.observer.GetOrPostListener;
 import com.example.wpx.framework.http.RetrofitClient;
@@ -77,7 +76,7 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
 
     @Override
     protected void addFilters() {
-        mFilter.addAction(BroadcastFilterConfig.ACTION_OPENBLE);
+        filter.addAction(BroadcastFilterConfig.ACTION_OPENBLE);
     }
 
     @Override
@@ -112,7 +111,6 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
 
     @Override
     protected void initData() {
-        startService(new Intent(this, BleClientService.class));
         testLvAtAdapter = new TestLvAtAdapter(this, list);
         listView.setAdapter(testLvAtAdapter);
         onRefreshData();

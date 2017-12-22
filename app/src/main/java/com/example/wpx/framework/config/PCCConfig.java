@@ -1,7 +1,8 @@
 package com.example.wpx.framework.config;
 
 
-import com.example.wpx.framework.service.ParseData.model.PCCJsonBean;
+import com.example.wpx.framework.service.parsedata.model.PCCJsonBean;
+
 import java.util.ArrayList;
 
 /**
