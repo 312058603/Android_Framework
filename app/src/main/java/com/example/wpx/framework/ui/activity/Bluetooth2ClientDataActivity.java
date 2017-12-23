@@ -182,7 +182,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
                         byte[] buffer = new byte[1024];
                         int len = 0;
                         len = bis.read(buffer);
-                        LogUtil.e("收到蓝牙服务端的数据:" + ByteConvertUtil.bytesToHexString(buffer));
+                        LogUtil.e("收到蓝牙服务端数据:" + ByteConvertUtil.bytesToHexString(buffer));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

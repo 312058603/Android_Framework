@@ -37,7 +37,6 @@ public class Bluetooth2ClientActivity extends BaseActivity<IBluetooth2ClientAtVi
     private Bluetooth2ClientAtDeviceAdapter bluetoothDeviceAdapter;
     private List<BluetoothDevice> bluetoothDeviceList = new ArrayList<>();
 
-
     private static final int REQUEST_ENABLE_BT = 1;
 
     @Override
