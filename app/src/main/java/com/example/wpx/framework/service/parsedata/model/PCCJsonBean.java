@@ -1,4 +1,4 @@
-package com.example.wpx.framework.service.parsedata.model;
+package com.example.wpx.framework.service.ParseData.model;
 
 import com.bigkoo.pickerview.model.IPickerViewData;
 

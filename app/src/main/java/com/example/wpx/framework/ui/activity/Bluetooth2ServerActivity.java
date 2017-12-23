@@ -5,21 +5,29 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.wpx.framework.R;
+import com.example.wpx.framework.config.HandlerMsgConfig;
 import com.example.wpx.framework.ui.base.BaseActivity;
 import com.example.wpx.framework.ui.presenter.Bluetooth2ServerAtPersenter;
 import com.example.wpx.framework.ui.view.IBluetooth2ServerAtView;
 import com.example.wpx.framework.util.ByteConvertUtil;
+import com.example.wpx.framework.util.HandlerUtil;
 import com.example.wpx.framework.util.LogUtil;
 import com.example.wpx.framework.util.otherutil.ToastUtils;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -30,17 +38,34 @@ import java.util.UUID;
  */
 public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtView, Bluetooth2ServerAtPersenter> {
 
-    private TextView txt_Buffer;
+    private static TextView txt_Buffer;
     private Button btn_Send;
+    private EditText edt_Content;
 
     private BluetoothAdapter bluetoothAdapter;
     private AcceptThread acceptThread;
-    private ServerReadThread serverReadThread;
+    private ServerThread serverThread;
+    private static InputStream inputStream;
+    private static OutputStream outputStream;
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_DISCOVERY = 2;
-    private static final String NAME = "ZYF-test";
+    private static final String NAME = "wpx";
     private static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+    private static Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case HandlerMsgConfig.RECEIVE_BLUETOOTH_CLIENT_DATA:
+                    byte[] data = (byte[]) msg.obj;
+                    String beforeContent=txt_Buffer.getText().toString();
+                    txt_Buffer.setText(beforeContent+"收到客户端数据:" + ByteConvertUtil.bytesToHexString(data) + "\n");
+                    break;
+            }
+        }
+    };
 
     @Override
     protected Bluetooth2ServerAtPersenter createPresenter() {
@@ -81,8 +106,8 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
                 LogUtil.e(String.format("蓝牙状态变化: %s", stateStr));
                 break;
             case BluetoothAdapter.ACTION_SCAN_MODE_CHANGED:
-                int scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0);
                 int preScanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_SCAN_MODE, 0);
+                int scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0);
                 //枚举：SCAN_MODE_CONNECTABLE_DISCOVERABLE、 SCAN_MODE_CONNECTABLE 或 SCAN_MODE_NONE
                 ToastUtils.showShortToast(this, String.format("扫描模式改变：%s => %s", scanModeToString(preScanMode), scanModeToString(scanMode)));
                 break;
@@ -109,11 +134,17 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
     protected void findView() {
         txt_Buffer = (TextView) findViewById(R.id.txt_Buffer);
         btn_Send = (Button) findViewById(R.id.btn_Send);
+        edt_Content= (EditText) findViewById(R.id.edt_Content);
     }
 
     @Override
     protected void initListener() {
-
+        btn_Send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ServerThread.write(edt_Content.getText().toString().getBytes());
+            }
+        });
     }
 
     @Override
@@ -161,11 +192,13 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
         private BluetoothServerSocket ServerSocket;
 
         public AcceptThread() {
-            BluetoothServerSocket tmp = null;
+            BluetoothServerSocket tempServerSocket = null;
             try {
-                ServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, SPP_UUID);
+                // MY_UUID is the app's UUID string, also used by the client code
+                tempServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, SPP_UUID);
             } catch (IOException e) {
             }
+            ServerSocket = tempServerSocket;
         }
 
         public void run() {
@@ -174,6 +207,7 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
                 try {
                     socket = ServerSocket.accept();
                 } catch (IOException e) {
+                    LogUtil.e_Throwable(e);
                     break;
                 }
                 if (socket != null) {
@@ -181,7 +215,7 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
                     try {
                         ServerSocket.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LogUtil.e_Throwable(e);
                     }
                     break;
                 }
@@ -192,47 +226,70 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
             try {
                 ServerSocket.close();
             } catch (IOException e) {
+                e.printStackTrace();
+                LogUtil.e_Throwable(e);
             }
         }
     }
 
 
     private void manageConnectedSocket(BluetoothSocket socket) {
-        serverReadThread = new ServerReadThread(socket);
-        serverReadThread.start();
+        serverThread = new ServerThread(socket);
+        serverThread.start();
     }
 
-    //接收数据线程
-    private class ServerReadThread extends Thread {
+    /**
+     * 服务端线程
+     */
+    private static class ServerThread extends Thread {
 
         BluetoothSocket socket;
 
-        public ServerReadThread(BluetoothSocket socket) {
+        public ServerThread(BluetoothSocket socket) {
             this.socket = socket;
         }
 
         public void run() {
-            while (true) {
-                InputStream inputStream = null;
-                try {
-                    inputStream = socket.getInputStream();
-                    BufferedInputStream bis = new BufferedInputStream(inputStream);
+            try {
+                inputStream = socket.getInputStream();
+                outputStream=socket.getOutputStream();
+                BufferedInputStream bis = new BufferedInputStream(inputStream);
+                while (true) {
                     if (bis.available() > 0) {
                         byte[] buffer = new byte[1024];
                         int len = bis.read(buffer);
-                        LogUtil.e("收到客户端数据:" + ByteConvertUtil.bytesToHexString(buffer));
+                        byte[] data = new byte[len];
+                        for (int i = 0; i < len; i++) {
+                            data[i] = buffer[i];
+                        }
+                        LogUtil.e("收到客户端数据:" + ByteConvertUtil.bytesToHexString(data));
+                        HandlerUtil.sendMessage(handler, HandlerMsgConfig.RECEIVE_BLUETOOTH_CLIENT_DATA, data);
                     }
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                } finally {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                LogUtil.e_Throwable(e);
+            } finally {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    LogUtil.e_Throwable(e);
                 }
             }
         }
-    }
 
+        public static void write(byte[] bytes) {
+            try {
+                LogUtil.e("服务端写出数据:"+ByteConvertUtil.bytesToHexString(bytes));
+                BufferedOutputStream bos = new BufferedOutputStream(outputStream);
+                bos.write(bytes);
+                bos.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 }
+

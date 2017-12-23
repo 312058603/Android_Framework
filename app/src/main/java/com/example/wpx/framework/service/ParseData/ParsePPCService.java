@@ -1,9 +1,9 @@
-package com.example.wpx.framework.service.parsedata;
+package com.example.wpx.framework.service.ParseData;
 
 import android.app.IntentService;
 import android.content.Intent;
 import com.example.wpx.framework.config.PCCConfig;
-import com.example.wpx.framework.service.parsedata.model.PCCJsonBean;
+import com.example.wpx.framework.service.ParseData.model.PCCJsonBean;
 import com.example.wpx.framework.util.ParsePPCDataUtil;
 import com.example.wpx.framework.util.LogUtil;
 import com.google.gson.Gson;

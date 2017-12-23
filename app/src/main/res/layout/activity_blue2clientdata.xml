@@ -25,4 +25,17 @@
         android:layout_height="wrap_content"
         android:text="发送"/>
 
+    <EditText
+        android:id="@+id/edt_Content"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:enabled="true"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:minLines="8"
+        android:maxLines="10"
+        android:scrollbars="vertical"
+        android:background="@android:drawable/edit_text">
+    </EditText>
+
 </LinearLayout>

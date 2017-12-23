@@ -4,8 +4,7 @@ import android.content.Intent;
 
 import com.example.wpx.framework.app.base.BaseApp;
 import com.example.wpx.framework.config.FileConfig;
-import com.example.wpx.framework.service.parsedata.ParsePPCService;
-
+import com.example.wpx.framework.service.ParseData.ParsePPCService;
 import org.litepal.LitePal;
 
 /**

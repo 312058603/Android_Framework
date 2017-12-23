@@ -6,18 +6,24 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.wpx.framework.R;
+import com.example.wpx.framework.config.HandlerMsgConfig;
 import com.example.wpx.framework.ui.base.BaseActivity;
 import com.example.wpx.framework.ui.presenter.Bluetooth2ClientDataAtPresenter;
 import com.example.wpx.framework.ui.view.IBluetooth2ClientDataAtView;
 import com.example.wpx.framework.util.ByteConvertUtil;
+import com.example.wpx.framework.util.HandlerUtil;
 import com.example.wpx.framework.util.LogUtil;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,15 +37,34 @@ import java.util.UUID;
  */
 public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2ClientDataAtView, Bluetooth2ClientDataAtPresenter> {
 
-    private TextView txt_Buffer;
+    private static TextView txt_Buffer;
     private Button btn_Send;
+    private EditText edt_Content;
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
-    private ConnectedThread connectedThread;
+    private ClientThread clientThread;
+
+    private static BluetoothSocket bluetoothSocket;
+    private static InputStream inputStream;
+    private static OutputStream outputStream;
 
     private static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private static final int REQUEST_ENABLE_BT = 1;
+
+    private static Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case HandlerMsgConfig.RECEIVE_BLUETOOTH_SERVER_DATA:
+                    byte[] data = (byte[]) msg.obj;
+                    String beforeContent=txt_Buffer.getText().toString();
+                    txt_Buffer.setText(beforeContent+"收到服务端数据:" + ByteConvertUtil.bytesToHexString(data) + "\n");
+                    break;
+            }
+        }
+    };
 
     @Override
     protected Bluetooth2ClientDataAtPresenter createPresenter() {
@@ -65,6 +90,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
     protected void findView() {
         txt_Buffer = (TextView) findViewById(R.id.txt_Buffer);
         btn_Send = (Button) findViewById(R.id.btn_Send);
+        edt_Content = (EditText) findViewById(R.id.edt_Content);
     }
 
     @Override
@@ -72,9 +98,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
         btn_Send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ConnectedThread thread = new ConnectedThread(bluetoothSocket);
-                byte[] data = new byte[]{0x31, 0x32, 0x33};
-                thread.write(data);
+                clientThread.write(edt_Content.getText().toString().getBytes());
             }
         });
     }
@@ -108,7 +132,6 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
         connectThread.start();
     }
 
-    private BluetoothSocket bluetoothSocket;
 
     /**
      * 连接线程
@@ -121,6 +144,8 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
             this.bluetoothDevice = device;
             try {
                 bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(SPP_UUID);
+                inputStream = bluetoothSocket.getInputStream();
+                outputStream = bluetoothSocket.getOutputStream();
             } catch (IOException e) {
             }
         }
@@ -132,12 +157,12 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
             } catch (IOException connectException) {
                 try {
                     bluetoothSocket.close();
-                } catch (IOException closeException) {
-
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 return;
             }
-            manageConnectedSocket(bluetoothSocket);
+            manageConnectedSocket();
         }
 
         public void cancel() {
@@ -151,32 +176,20 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
 
     /**
      * 连接处理
-     *
-     * @param mmSocket
      */
-    private void manageConnectedSocket(BluetoothSocket mmSocket) {
-        connectedThread = new ConnectedThread(mmSocket);
-        connectedThread.start();
+    private void manageConnectedSocket() {
+        clientThread = new ClientThread();
+        clientThread.start();
     }
 
 
     /**
-     * 已连接线程
+     * 客户端线程
      */
-    public class ConnectedThread extends Thread {
+    public static class ClientThread extends Thread {
 
-        private BluetoothSocket bluetoothSocket;
-        private InputStream inputStream;
-        private OutputStream outputStream;
+        public ClientThread() {
 
-        public ConnectedThread(BluetoothSocket bluetoothSocket) {
-            this.bluetoothSocket = bluetoothSocket;
-            try {
-                inputStream = bluetoothSocket.getInputStream();
-                outputStream = bluetoothSocket.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         public void run() {
@@ -185,9 +198,14 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
                     BufferedInputStream bis = new BufferedInputStream(inputStream);
                     if (bis.available() > 0) {
                         byte[] buffer = new byte[1024];
-                        int len = 0;
-                        len = bis.read(buffer);
-                        LogUtil.e("收到蓝牙服务端数据:" + ByteConvertUtil.bytesToHexString(buffer));
+                        int len = bis.read(buffer);
+                        byte[] data = new byte[len];
+                        for (int i = 0; i < len; i++) {
+                            data[i] = buffer[i];
+                        }
+                        LogUtil.e("收到蓝牙服务端数据:" + ByteConvertUtil.bytesToHexString(data));
+                        HandlerUtil.sendMessage(handler, HandlerMsgConfig.RECEIVE_BLUETOOTH_SERVER_DATA, data);
+
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -195,11 +213,12 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
             }
         }
 
-        public void write(byte[] bytes) {
-            LogUtil.e("客户端写出数据:"+ByteConvertUtil.bytesToHexString(bytes));
+        public static void write(byte[] bytes) {
             try {
-                outputStream.write(bytes);
-                outputStream.flush();
+                LogUtil.e("客户端写出数据:" + ByteConvertUtil.bytesToHexString(bytes));
+                BufferedOutputStream bos = new BufferedOutputStream(outputStream);
+                bos.write(bytes);
+                bos.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
