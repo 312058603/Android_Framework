@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/txt_Buffer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#ff6600"
+        android:hint="无数据,请开始测试!"
+        android:textSize="18dp"
+        android:layout_weight="1"
+        android:padding="10dp"
+        android:shape="rectangle"
+        android:radius="2dp"
+        android:color="#303F9F"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false" />
+
+    <Button
+        android:id="@+id/btn_Send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送"/>
+
+</LinearLayout>

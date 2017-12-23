@@ -1,13 +1,11 @@
 package com.example.wpx.framework.ui.activity;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 
-import com.example.wpx.framework.config.BroadcastFilterConfig;
 import com.example.wpx.framework.ui.base.BaseActivity;
-import com.example.wpx.framework.ui.presenter.BleTestAtPresenter;
-import com.example.wpx.framework.ui.view.IBleTestAtView;
+import com.example.wpx.framework.ui.presenter.BleDemoAtPresenter;
+import com.example.wpx.framework.ui.view.IBleDemoAtView;
 
 /**
  * <h3>description</h3>
@@ -15,10 +13,10 @@ import com.example.wpx.framework.ui.view.IBleTestAtView;
  * <h3>创建日期</h3> 2017/12/21 16:14
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
-public class BleTestActivity extends BaseActivity<IBleTestAtView, BleTestAtPresenter>{
+public class BleDemoActivity extends BaseActivity<IBleDemoAtView, BleDemoAtPresenter>{
 
     @Override
-    protected BleTestAtPresenter createPresenter() {
+    protected BleDemoAtPresenter createPresenter() {
         return null;
     }
 

@@ -24,20 +24,18 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".ui.activity.MainTestActivity">
+        <activity android:name=".ui.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!--蓝牙测试界面-->
-        <activity android:name=".ui.activity.BleTestActivity" />
+        <activity android:name=".ui.activity.Bluetooth2ClientActivity" />
+        <activity android:name=".ui.activity.Bluetooth2ClientDataActivity" />
 
         <!--城市器数据初始化-->
         <service android:name=".service.parsedata.ParsePPCService" />
-        <!--Ble客户端服务-->
-        <service android:name=".service.ble.BleClientService" />
     </application>
 
 

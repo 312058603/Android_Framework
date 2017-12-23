@@ -3,7 +3,6 @@ package com.example.wpx.framework.adapter;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import com.example.wpx.framework.R;
 import java.util.List;
@@ -14,9 +13,9 @@ import java.util.List;
  * <h3>创建日期</h3> 2017/12/20 13:22
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
-public class TestLvAtAdapter extends AbsListViewAdapter<String>{
+public class MainAtAdapter extends AbsListViewAdapter<String>{
 
-    public TestLvAtAdapter(Context context, List<String> list) {
+    public MainAtAdapter(Context context, List<String> list) {
         super(context, list);
     }
 
@@ -25,7 +24,7 @@ public class TestLvAtAdapter extends AbsListViewAdapter<String>{
         TestLvItemHolder holder;
         if (convertView == null) {
             holder = new TestLvItemHolder();
-            convertView = View.inflate(viewParent.getContext(), R.layout.item_testlv, null);
+            convertView = View.inflate(viewParent.getContext(), R.layout.item_main, null);
             holder.testLvItem_content = (TextView) convertView.findViewById(R.id.testLvItem_content);
             convertView.setTag(holder);
         } else {

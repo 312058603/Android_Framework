@@ -14,7 +14,7 @@ import com.bigkoo.pickerview.OptionsPickerView;
 import com.bigkoo.pickerview.TimePickerView;
 import com.bigkoo.pickerview.listener.CustomListener;
 import com.example.wpx.framework.R;
-import com.example.wpx.framework.adapter.TestLvAtAdapter;
+import com.example.wpx.framework.adapter.MainAtAdapter;
 import com.example.wpx.framework.config.BroadcastFilterConfig;
 import com.example.wpx.framework.config.FileConfig;
 import com.example.wpx.framework.config.PCCConfig;
@@ -25,7 +25,7 @@ import com.example.wpx.framework.http.model.Request.TestJsonModel;
 import com.example.wpx.framework.http.model.Response.TestResponseModel;
 import com.example.wpx.framework.ui.base.BaseActivity;
 import com.example.wpx.framework.ui.presenter.MainTestAtPresenter;
-import com.example.wpx.framework.ui.view.IMainTestAtView;
+import com.example.wpx.framework.ui.view.IMainAtView;
 import com.example.wpx.framework.util.DateUtil;
 import com.example.wpx.framework.util.IntentUtil;
 import com.example.wpx.framework.util.LogUtil;
@@ -48,13 +48,13 @@ import java.util.Map;
  * <h3>创建日期</h3> 2017/12/18 9:56
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
-public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPresenter> implements OnRefreshListener, OnLoadmoreListener, AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity<IMainAtView, MainTestAtPresenter> implements OnRefreshListener, OnLoadmoreListener, AdapterView.OnItemClickListener {
 
     private RefreshLayout refreshLayout;
     private ClassicsHeader classicsHeader;
     private ClassicsFooter classicsFooter;
     private ListView listView;
-    private TestLvAtAdapter testLvAtAdapter;
+    private MainAtAdapter mainAtAdapter;
     List<String> list = new ArrayList<>();
     private int pageIndex;
     private int pageSize = 15;
@@ -71,7 +71,7 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
 
     @Override
     protected int getContentViewId() {
-        return R.layout.activity_test;
+        return R.layout.activity_main;
     }
 
     @Override
@@ -111,8 +111,8 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
 
     @Override
     protected void initData() {
-        testLvAtAdapter = new TestLvAtAdapter(this, list);
-        listView.setAdapter(testLvAtAdapter);
+        mainAtAdapter = new MainAtAdapter(this, list);
+        listView.setAdapter(mainAtAdapter);
         onRefreshData();
         initCustomTimePicker();
     }
@@ -157,12 +157,12 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
             } else if (i == 8) {
                 list.add("数据选择器控件");
             } else if (i == 9) {
-                list.add("Ble测试");
+                list.add("Bluetooth2Client");
             } else {
                 list.add("第" + (i + 1) + "条数据");
             }
         }
-        testLvAtAdapter.notifyDataSetChanged();
+        mainAtAdapter.notifyDataSetChanged();
         refreshLayout.finishRefresh();
     }
 
@@ -173,7 +173,7 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
         for (int i = pageIndex * pageSize; i < (pageIndex + 1) * pageSize; i++) {
             list.add("第" + (i + 1) + "条数据");
         }
-        testLvAtAdapter.notifyDataSetChanged();
+        mainAtAdapter.notifyDataSetChanged();
         refreshLayout.finishLoadmore();
         pageIndex += 1;
     }
@@ -240,7 +240,7 @@ public class MainTestActivity extends BaseActivity<IMainTestAtView, MainTestAtPr
         } else if (position == 8) {
             initOptionPicker();
         } else if (position == 9) {
-            IntentUtil.startActivity(this, BleTestActivity.class);
+            IntentUtil.startActivity(this, Bluetooth2ClientActivity.class);
         }
     }
 
