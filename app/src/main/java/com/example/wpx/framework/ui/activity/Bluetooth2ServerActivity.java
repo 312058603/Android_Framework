@@ -13,8 +13,11 @@ import com.example.wpx.framework.R;
 import com.example.wpx.framework.ui.base.BaseActivity;
 import com.example.wpx.framework.ui.presenter.Bluetooth2ServerAtPersenter;
 import com.example.wpx.framework.ui.view.IBluetooth2ServerAtView;
+import com.example.wpx.framework.util.ByteConvertUtil;
 import com.example.wpx.framework.util.LogUtil;
+import com.example.wpx.framework.util.otherutil.ToastUtils;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
@@ -32,6 +35,7 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
 
     private BluetoothAdapter bluetoothAdapter;
     private AcceptThread acceptThread;
+    private ServerReadThread serverReadThread;
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_DISCOVERY = 2;
@@ -51,6 +55,7 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
     @Override
     protected void addFilters() {
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
     }
 
     @Override
@@ -75,7 +80,29 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
                 }
                 LogUtil.e(String.format("蓝牙状态变化: %s", stateStr));
                 break;
+            case BluetoothAdapter.ACTION_SCAN_MODE_CHANGED:
+                int scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0);
+                int preScanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_SCAN_MODE, 0);
+                //枚举：SCAN_MODE_CONNECTABLE_DISCOVERABLE、 SCAN_MODE_CONNECTABLE 或 SCAN_MODE_NONE
+                ToastUtils.showShortToast(this, String.format("扫描模式改变：%s => %s", scanModeToString(preScanMode), scanModeToString(scanMode)));
+                break;
         }
+    }
+
+    private String scanModeToString(int scanMode) {
+        String str = "未知";
+        switch (scanMode) {
+            case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+                str = "SCAN_MODE_CONNECTABLE_DISCOVERABLE";
+                break;
+            case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
+                str = "SCAN_MODE_CONNECTABLE";
+                break;
+            case BluetoothAdapter.SCAN_MODE_NONE:
+                str = "SCAN_MODE_NONE";
+                break;
+        }
+        return str;
     }
 
     @Override
@@ -98,9 +125,10 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
     protected void initData() {
         initBluetooth();
         startAcceptThread();
+        enableBeDiscovery();
     }
 
-    private void initBluetooth(){
+    private void initBluetooth() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             LogUtil.e("不支持蓝牙");
@@ -112,40 +140,46 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
         }
     }
 
-    private void startAcceptThread(){
+    private void startAcceptThread() {
         acceptThread = new AcceptThread();
         acceptThread.start();
     }
 
+    /**
+     * 默认情况下，设备将变为可检测到并持续 120 秒钟。 您可以通过添加 EXTRA_DISCOVERABLE_DURATION Intent Extra 来定义不同的持续时间。 应用可以设置的最大持续时间为 3600 秒，值为 0 则表示设备始终可检测到。 任何小于 0 或大于 3600 的值都会自动设为 120 秒。 例如，以下片段会将持续时间设为 300 秒：
+     */
+    private void enableBeDiscovery() {
+        int MAX = 300;
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, MAX);
+        startActivityForResult(discoverableIntent, REQUEST_DISCOVERY);
+        ToastUtils.showShortToast(this, String.format("开启蓝牙可见 %s秒", MAX));
+    }
+
     private class AcceptThread extends Thread {
-        private final BluetoothServerSocket mmServerSocket;
+
+        private BluetoothServerSocket ServerSocket;
 
         public AcceptThread() {
-            // Use a temporary object that is later assigned to mmServerSocket,
-            // because mmServerSocket is final
             BluetoothServerSocket tmp = null;
             try {
-                // MY_UUID is the app's UUID string, also used by the client code
-                tmp = bluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, SPP_UUID);
+                ServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, SPP_UUID);
             } catch (IOException e) {
             }
-            mmServerSocket = tmp;
         }
 
         public void run() {
             BluetoothSocket socket = null;
-            // Keep listening until exception occurs or a socket is returned
             while (true) {
                 try {
-                    socket = mmServerSocket.accept();
+                    socket = ServerSocket.accept();
                 } catch (IOException e) {
                     break;
                 }
-                // If a connection was accepted
                 if (socket != null) {
                     manageConnectedSocket(socket);
                     try {
-                        mmServerSocket.close();
+                        ServerSocket.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -154,58 +188,48 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
             }
         }
 
-        /**
-         * Will cancel the listening socket, and cause the thread to finish
-         */
         public void cancel() {
             try {
-                mmServerSocket.close();
+                ServerSocket.close();
             } catch (IOException e) {
             }
         }
     }
 
 
-    ServerReadThread mServerReadThread;
-
     private void manageConnectedSocket(BluetoothSocket socket) {
-        mServerReadThread = new ServerReadThread(socket);
-        mServerReadThread.start();
+        serverReadThread = new ServerReadThread(socket);
+        serverReadThread.start();
     }
 
-    private static final int MSG_SERVER_READ = 1;
-    private static final int MSG_APPEND = 2;
-
-    // 读取数据
+    //接收数据线程
     private class ServerReadThread extends Thread {
-        BluetoothSocket mSocket;
+
+        BluetoothSocket socket;
 
         public ServerReadThread(BluetoothSocket socket) {
-            this.mSocket = socket;
+            this.socket = socket;
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];
-            int bytes;
-            InputStream is = null;
-            try {
-                is = mSocket.getInputStream();
-                while (true) {
-                    if ((bytes = is.read(buffer)) > 0) {
-
-                        byte[] result = new byte[bytes];
-                        for (int i = 0; i < bytes; i++) {
-                            result[i] = buffer[i];
-                        }
-                    }
-                }
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            } finally {
+            while (true) {
+                InputStream inputStream = null;
                 try {
-                    is.close();
+                    inputStream = socket.getInputStream();
+                    BufferedInputStream bis = new BufferedInputStream(inputStream);
+                    if (bis.available() > 0) {
+                        byte[] buffer = new byte[1024];
+                        int len = bis.read(buffer);
+                        LogUtil.e("收到客户端数据:" + ByteConvertUtil.bytesToHexString(buffer));
+                    }
                 } catch (IOException e1) {
                     e1.printStackTrace();
+                } finally {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         }

@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -68,7 +69,14 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
 
     @Override
     protected void initListener() {
-
+        btn_Send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ConnectedThread thread = new ConnectedThread(bluetoothSocket);
+                byte[] data = new byte[]{0x31, 0x32, 0x33};
+                thread.write(data);
+            }
+        });
     }
 
     @Override
@@ -100,31 +108,30 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
         connectThread.start();
     }
 
+    private BluetoothSocket bluetoothSocket;
+
     /**
      * 连接线程
      */
     private class ConnectThread extends Thread {
 
-        private BluetoothSocket bluetoothSocket;
         private BluetoothDevice bluetoothDevice;
 
         public ConnectThread(BluetoothDevice device) {
-            BluetoothSocket bs = null;
-            bluetoothDevice = device;
+            this.bluetoothDevice = device;
             try {
-                bluetoothSocket = device.createRfcommSocketToServiceRecord(SPP_UUID);
+                bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(SPP_UUID);
             } catch (IOException e) {
             }
-            bluetoothSocket = bs;
         }
 
         public void run() {
             bluetoothAdapter.cancelDiscovery();
             try {
-                this.bluetoothSocket.connect();
+                bluetoothSocket.connect();
             } catch (IOException connectException) {
                 try {
-                    this.bluetoothSocket.close();
+                    bluetoothSocket.close();
                 } catch (IOException closeException) {
 
                 }
@@ -135,7 +142,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
 
         public void cancel() {
             try {
-                this.bluetoothSocket.close();
+                bluetoothSocket.close();
             } catch (IOException e) {
             }
         }
@@ -156,22 +163,20 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
     /**
      * 已连接线程
      */
-    private class ConnectedThread extends Thread {
+    public class ConnectedThread extends Thread {
+
         private BluetoothSocket bluetoothSocket;
         private InputStream inputStream;
         private OutputStream outputStream;
 
         public ConnectedThread(BluetoothSocket bluetoothSocket) {
             this.bluetoothSocket = bluetoothSocket;
-            InputStream is = null;
-            OutputStream os = null;
             try {
                 inputStream = bluetoothSocket.getInputStream();
                 outputStream = bluetoothSocket.getOutputStream();
             } catch (IOException e) {
+                e.printStackTrace();
             }
-            inputStream = is;
-            outputStream = os;
         }
 
         public void run() {
@@ -191,9 +196,10 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
         }
 
         public void write(byte[] bytes) {
-            LogUtil.e("客户端写出数据: " + new String(bytes) + "\r\n");
+            LogUtil.e("客户端写出数据:"+ByteConvertUtil.bytesToHexString(bytes));
             try {
                 outputStream.write(bytes);
+                outputStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }

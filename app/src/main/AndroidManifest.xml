@@ -33,6 +33,7 @@
 
         <activity android:name=".ui.activity.Bluetooth2ClientActivity" />
         <activity android:name=".ui.activity.Bluetooth2ClientDataActivity" />
+        <activity android:name=".ui.activity.Bluetooth2ServerActivity" />
 
         <!--城市器数据初始化-->
         <service android:name=".service.parsedata.ParsePPCService" />

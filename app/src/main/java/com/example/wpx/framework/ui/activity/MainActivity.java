@@ -158,7 +158,10 @@ public class MainActivity extends BaseActivity<IMainAtView, MainTestAtPresenter>
                 list.add("数据选择器控件");
             } else if (i == 9) {
                 list.add("Bluetooth2Client");
-            } else {
+            }else if(i==10){
+                list.add("Bluetooth2Server");
+            }
+            else {
                 list.add("第" + (i + 1) + "条数据");
             }
         }
@@ -241,6 +244,8 @@ public class MainActivity extends BaseActivity<IMainAtView, MainTestAtPresenter>
             initOptionPicker();
         } else if (position == 9) {
             IntentUtil.startActivity(this, Bluetooth2ClientActivity.class);
+        }else if(position==10){
+            IntentUtil.startActivity(this, Bluetooth2ServerActivity.class);
         }
     }
 
