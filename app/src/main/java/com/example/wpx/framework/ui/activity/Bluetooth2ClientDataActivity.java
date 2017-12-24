@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,8 +60,11 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
             switch (msg.what) {
                 case HandlerMsgConfig.RECEIVE_BLUETOOTH_SERVER_DATA:
                     byte[] data = (byte[]) msg.obj;
-                    String beforeContent=txt_Buffer.getText().toString();
-                    txt_Buffer.setText(beforeContent+"收到服务端数据:" + ByteConvertUtil.bytesToHexString(data) + "\n");
+                    txt_Buffer.append("收到服务端数据:" + ByteConvertUtil.bytesToHexString(data) + "\n");
+                    int offset = txt_Buffer.getLineCount() * txt_Buffer.getLineHeight();
+                    if (offset > txt_Buffer.getHeight()) {
+                        txt_Buffer.scrollTo(0, offset - txt_Buffer.getHeight());
+                    }
                     break;
             }
         }
@@ -89,6 +93,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
     @Override
     protected void findView() {
         txt_Buffer = (TextView) findViewById(R.id.txt_Buffer);
+        txt_Buffer.setMovementMethod(ScrollingMovementMethod.getInstance());
         btn_Send = (Button) findViewById(R.id.btn_Send);
         edt_Content = (EditText) findViewById(R.id.edt_Content);
     }
@@ -164,14 +169,6 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
             }
             manageConnectedSocket();
         }
-
-        public void cancel() {
-            try {
-                bluetoothSocket.close();
-            } catch (IOException e) {
-            }
-        }
-
     }
 
     /**
@@ -205,7 +202,6 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
                         }
                         LogUtil.e("收到蓝牙服务端数据:" + ByteConvertUtil.bytesToHexString(data));
                         HandlerUtil.sendMessage(handler, HandlerMsgConfig.RECEIVE_BLUETOOTH_SERVER_DATA, data);
-
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -224,7 +220,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
             }
         }
 
-        public void cancel() {
+        public static void cancel() {
             try {
                 bluetoothSocket.close();
             } catch (IOException e) {
@@ -233,5 +229,8 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
 
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

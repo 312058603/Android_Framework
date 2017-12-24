@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -60,8 +61,11 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
             switch (msg.what) {
                 case HandlerMsgConfig.RECEIVE_BLUETOOTH_CLIENT_DATA:
                     byte[] data = (byte[]) msg.obj;
-                    String beforeContent=txt_Buffer.getText().toString();
-                    txt_Buffer.setText(beforeContent+"收到客户端数据:" + ByteConvertUtil.bytesToHexString(data) + "\n");
+                    txt_Buffer.append("收到客户端数据:" + ByteConvertUtil.bytesToHexString(data) + "\n");
+                    int offset = txt_Buffer.getLineCount() * txt_Buffer.getLineHeight();
+                    if (offset > txt_Buffer.getHeight()) {
+                        txt_Buffer.scrollTo(0, offset - txt_Buffer.getHeight());
+                    }
                     break;
             }
         }
@@ -87,20 +91,20 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
     protected void onReceive(Context context, Intent intent) {
         switch (intent.getAction()) {
             case BluetoothAdapter.ACTION_STATE_CHANGED:
-                String stateStr = "未知";
+                String stateStr = "";
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                 switch (state) {
                     case BluetoothAdapter.STATE_TURNING_ON:
-                        stateStr = "STATE_TURNING_ON";
+                        stateStr = "蓝牙正在打开...";
                         break;
                     case BluetoothAdapter.STATE_ON:
-                        stateStr = "STATE_ON";
+                        stateStr = "蓝牙已打开";
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
-                        stateStr = "STATE_TURNING_OFF";
+                        stateStr = "蓝牙正在关闭...";
                         break;
                     case BluetoothAdapter.STATE_OFF:
-                        stateStr = "STATE_OFF";
+                        stateStr = "蓝牙已关闭";
                         break;
                 }
                 LogUtil.e(String.format("蓝牙状态变化: %s", stateStr));
@@ -108,8 +112,7 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
             case BluetoothAdapter.ACTION_SCAN_MODE_CHANGED:
                 int preScanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_SCAN_MODE, 0);
                 int scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0);
-                //枚举：SCAN_MODE_CONNECTABLE_DISCOVERABLE、 SCAN_MODE_CONNECTABLE 或 SCAN_MODE_NONE
-                ToastUtils.showShortToast(this, String.format("扫描模式改变：%s => %s", scanModeToString(preScanMode), scanModeToString(scanMode)));
+                LogUtil.e(String.format("扫描模式改变：%s => %s", scanModeToString(preScanMode), scanModeToString(scanMode)));
                 break;
         }
     }
@@ -133,8 +136,9 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
     @Override
     protected void findView() {
         txt_Buffer = (TextView) findViewById(R.id.txt_Buffer);
+        txt_Buffer.setMovementMethod(ScrollingMovementMethod.getInstance());
         btn_Send = (Button) findViewById(R.id.btn_Send);
-        edt_Content= (EditText) findViewById(R.id.edt_Content);
+        edt_Content = (EditText) findViewById(R.id.edt_Content);
     }
 
     @Override
@@ -194,7 +198,6 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
         public AcceptThread() {
             BluetoothServerSocket tempServerSocket = null;
             try {
-                // MY_UUID is the app's UUID string, also used by the client code
                 tempServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, SPP_UUID);
             } catch (IOException e) {
             }
@@ -212,11 +215,7 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
                 }
                 if (socket != null) {
                     manageConnectedSocket(socket);
-                    try {
-                        ServerSocket.close();
-                    } catch (IOException e) {
-                        LogUtil.e_Throwable(e);
-                    }
+                    cancel();
                     break;
                 }
             }
@@ -252,7 +251,7 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
         public void run() {
             try {
                 inputStream = socket.getInputStream();
-                outputStream=socket.getOutputStream();
+                outputStream = socket.getOutputStream();
                 BufferedInputStream bis = new BufferedInputStream(inputStream);
                 while (true) {
                     if (bis.available() > 0) {
@@ -281,7 +280,7 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
 
         public static void write(byte[] bytes) {
             try {
-                LogUtil.e("服务端写出数据:"+ByteConvertUtil.bytesToHexString(bytes));
+                LogUtil.e("服务端写出数据:" + ByteConvertUtil.bytesToHexString(bytes));
                 BufferedOutputStream bos = new BufferedOutputStream(outputStream);
                 bos.write(bytes);
                 bos.flush();
@@ -289,7 +288,11 @@ public class Bluetooth2ServerActivity extends BaseActivity<IBluetooth2ServerAtVi
                 e.printStackTrace();
             }
         }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }
 

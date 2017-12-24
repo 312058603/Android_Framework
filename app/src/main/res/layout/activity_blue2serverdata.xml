@@ -7,35 +7,29 @@
     <TextView
         android:id="@+id/txt_Buffer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#ff6600"
-        android:hint="无数据,请开始测试!"
-        android:textSize="18dp"
-        android:layout_weight="1"
-        android:padding="10dp"
-        android:shape="rectangle"
-        android:radius="2dp"
+        android:layout_height="0dp"
+        android:layout_weight="9"
         android:color="#303F9F"
+        android:fadeScrollbars="false"
+        android:hint="无数据,请开始测试!"
+        android:padding="10dp"
+        android:radius="2dp"
         android:scrollbars="vertical"
-        android:fadeScrollbars="false" />
+        android:shape="rectangle"
+        android:textColor="#ff6600"
+        android:textSize="18dp" />
 
     <Button
         android:id="@+id/btn_Send"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="发送"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="发送" />
 
     <EditText
         android:id="@+id/edt_Content"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:enabled="true"
-        android:gravity="top"
-        android:inputType="textMultiLine"
-        android:minLines="8"
-        android:maxLines="10"
-        android:scrollbars="vertical"
-        android:background="@android:drawable/edit_text">
-    </EditText>
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 </LinearLayout>
