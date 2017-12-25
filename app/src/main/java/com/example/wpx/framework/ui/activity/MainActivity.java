@@ -18,6 +18,8 @@ import com.example.wpx.framework.adapter.MainAtAdapter;
 import com.example.wpx.framework.config.BroadcastFilterConfig;
 import com.example.wpx.framework.config.FileConfig;
 import com.example.wpx.framework.config.PCCConfig;
+import com.example.wpx.framework.hardware.bluetooth.ble.BleClient;
+import com.example.wpx.framework.hardware.bluetooth.ble.BleServer;
 import com.example.wpx.framework.http.observer.DownLoadListener;
 import com.example.wpx.framework.http.observer.GetOrPostListener;
 import com.example.wpx.framework.http.RetrofitClient;
@@ -160,6 +162,10 @@ public class MainActivity extends BaseActivity<IMainAtView, MainTestAtPresenter>
                 list.add("Bluetooth2Client");
             }else if(i==10){
                 list.add("Bluetooth2Server");
+            }else  if(i==11){
+                list.add("BleClient");
+            }else  if(i==12){
+                list.add("BleServer");
             }
             else {
                 list.add("第" + (i + 1) + "条数据");
@@ -246,6 +252,10 @@ public class MainActivity extends BaseActivity<IMainAtView, MainTestAtPresenter>
             IntentUtil.startActivity(this, Bluetooth2ClientActivity.class);
         }else if(position==10){
             IntentUtil.startActivity(this, Bluetooth2ServerActivity.class);
+        }else if(position==11){
+            IntentUtil.startActivity(this, BleClientActivity.class);
+        }else if(position==12){
+            IntentUtil.startActivity(this, BleServerActivity.class);
         }
     }
 

@@ -104,7 +104,7 @@ public class BleClient {
             LogUtil.e("蓝牙名称:" + device.getName() + ",蓝牙地址:" + device.getAddress() + ",蓝牙信号:" + rssi);
             if (device.getName().equals(TEST_DEVICENAME)) {
                 //停止扫描
-                startScan(scanCallback);
+                stopScan();
                 bluetoothGatt = device.connectGatt(context, false, bluetoothGattCallback);
                 if (bluetoothGatt.connect()) {
                     stopScan();

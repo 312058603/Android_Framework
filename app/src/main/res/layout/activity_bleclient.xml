@@ -10,6 +10,18 @@
         android:layout_height="wrap_content"
         android:text="搜索"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="设备列表"
+        android:textSize="25sp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
     <ListView
         android:id="@+id/lv_Devices"
         android:layout_width="match_parent"

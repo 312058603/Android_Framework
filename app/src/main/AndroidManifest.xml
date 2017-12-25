@@ -34,9 +34,12 @@
         <activity android:name=".ui.activity.Bluetooth2ClientActivity" />
         <activity android:name=".ui.activity.Bluetooth2ClientDataActivity" />
         <activity android:name=".ui.activity.Bluetooth2ServerActivity" />
+        <activity android:name=".ui.activity.BleClientActivity" />
+        <activity android:name=".ui.activity.BleClientDataActivity" />
+        <activity android:name=".ui.activity.BleServerActivity" />
 
         <!--城市器数据初始化-->
-        <service android:name=".service.parsedata.ParsePPCService" />
+        <service android:name=".service.ParseData.ParsePPCService" />
     </application>
 
 

@@ -34,7 +34,7 @@ public class Bluetooth2ClientActivity extends BaseActivity<IBluetooth2ClientAtVi
     private ListView lv_Devices;
 
     private BluetoothAdapter bluetoothAdapter;
-    private Bluetooth2ClientAtDeviceAdapter bluetoothDeviceAdapter;
+    private Bluetooth2ClientAtDeviceAdapter bluetooth2ClientAtDeviceAdapter;
     private List<BluetoothDevice> bluetoothDeviceList = new ArrayList<>();
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -61,7 +61,7 @@ public class Bluetooth2ClientActivity extends BaseActivity<IBluetooth2ClientAtVi
                 BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 LogUtil.e("蓝牙名称:"+bluetoothDevice.getName()+",蓝牙地址:"+bluetoothDevice.getAddress());
                 if(!bluetoothDeviceList.contains(bluetoothDevice)){
-                    bluetoothDeviceAdapter.addOne(bluetoothDevice);
+                    bluetooth2ClientAtDeviceAdapter.addOne(bluetoothDevice);
                 }
                 break;
         }
@@ -81,8 +81,7 @@ public class Bluetooth2ClientActivity extends BaseActivity<IBluetooth2ClientAtVi
 
     @Override
     protected void initIntentData() {
-        bluetoothDeviceAdapter = new Bluetooth2ClientAtDeviceAdapter(this, bluetoothDeviceList);
-        lv_Devices.setAdapter(bluetoothDeviceAdapter);
+
     }
 
     @Override
@@ -100,6 +99,9 @@ public class Bluetooth2ClientActivity extends BaseActivity<IBluetooth2ClientAtVi
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+
+        bluetooth2ClientAtDeviceAdapter = new Bluetooth2ClientAtDeviceAdapter(this, bluetoothDeviceList);
+        lv_Devices.setAdapter(bluetooth2ClientAtDeviceAdapter);
     }
 
     @Override

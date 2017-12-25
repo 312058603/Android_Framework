@@ -58,7 +58,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case HandlerMsgConfig.RECEIVE_BLUETOOTH_SERVER_DATA:
+                case HandlerMsgConfig.BLUETOOTH_SERVER_RECEIVEDATA:
                     byte[] data = (byte[]) msg.obj;
                     txt_Buffer.append("收到服务端数据:" + ByteConvertUtil.bytesToHexString(data) + "\n");
                     int offset = txt_Buffer.getLineCount() * txt_Buffer.getLineHeight();
@@ -201,7 +201,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
                             data[i] = buffer[i];
                         }
                         LogUtil.e("收到蓝牙服务端数据:" + ByteConvertUtil.bytesToHexString(data));
-                        HandlerUtil.sendMessage(handler, HandlerMsgConfig.RECEIVE_BLUETOOTH_SERVER_DATA, data);
+                        HandlerUtil.sendMessage(handler, HandlerMsgConfig.BLUETOOTH_SERVER_RECEIVEDATA, data);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -233,4 +233,5 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
     protected void onDestroy() {
         super.onDestroy();
     }
+
 }

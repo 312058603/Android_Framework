@@ -6,7 +6,11 @@ package com.example.wpx.framework.config;
 
 public class HandlerMsgConfig {
     //收到蓝牙服务端数据
-    public static final int RECEIVE_BLUETOOTH_SERVER_DATA = 1;
+    public static final int BLUETOOTH_SERVER_RECEIVEDATA = 1;
     //收到蓝牙客户端数据
-    public static final int RECEIVE_BLUETOOTH_CLIENT_DATA = 2;
+    public static final int BLUETOOTH_CLIENT_RECEIVEDATA = 2;
+
+    //获取Ble服务
+    public static final int BLE_CLIENT_ONWRITE=1;
+    public static final int BLE_SERVER_ONCHANGED=2;
 }
