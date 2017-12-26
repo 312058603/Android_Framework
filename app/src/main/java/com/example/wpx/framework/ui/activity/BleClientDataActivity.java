@@ -263,4 +263,9 @@ public class BleClientDataActivity extends BaseActivity<IBleClientDataAtView, Bl
         sendMsg(edt_Content.getText().toString().getBytes());
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        bluetoothGatt.close();
+    }
 }

@@ -232,6 +232,7 @@ public class Bluetooth2ClientDataActivity extends BaseActivity<IBluetooth2Client
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ClientThread.cancel();
     }
 
 }
