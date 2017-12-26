@@ -49,7 +49,6 @@ public class BleClientDataActivity extends BaseActivity<IBleClientDataAtView, Bl
     private BluetoothGatt bluetoothGatt;
     private BluetoothGattCharacteristic readCharacteristic;
     private BluetoothGattCharacteristic writeCharacteristic;
-    private BluetoothGattCallback bluetoothGattCallbackImp;
 
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -68,17 +67,17 @@ public class BleClientDataActivity extends BaseActivity<IBleClientDataAtView, Bl
                 return;
             }
             switch (msg.what) {
-                case HandlerMsgConfig.BLE_SERVER_ONCHANGED:
-                    byte[] changeData = (byte[]) msg.obj;
-                    txt_Buffer.append("收到服务端数据:" + ByteConvertUtil.bytesToHexString(changeData) + "\n");
+                case HandlerMsgConfig.BLE_CLIENT_GETRESPONSEDATA:
+                    byte[] responseData = (byte[]) msg.obj;
+                    txt_Buffer.append("收到响应数据:" + ByteConvertUtil.bytesToHexString(responseData) + "\n");
                     int offsetChangeData = txt_Buffer.getLineCount() * txt_Buffer.getLineHeight();
                     if (offsetChangeData > txt_Buffer.getHeight()) {
                         txt_Buffer.scrollTo(0, offsetChangeData - txt_Buffer.getHeight());
                     }
                     break;
-                case HandlerMsgConfig.BLE_CLIENT_ONWRITE:
-                    byte[] writeData = (byte[]) msg.obj;
-                    txt_Buffer.append("客户端写出数据:" + ByteConvertUtil.bytesToHexString(writeData) + "\n");
+                case HandlerMsgConfig.BLE_CLIENT_SENDDATA:
+                    byte[] sendData = (byte[]) msg.obj;
+                    txt_Buffer.append("客户端写出数据:" + ByteConvertUtil.bytesToHexString(sendData) + "\n");
                     int offsetWriteData = txt_Buffer.getLineCount() * txt_Buffer.getLineHeight();
                     if (offsetWriteData > txt_Buffer.getHeight()) {
                         txt_Buffer.scrollTo(0, offsetWriteData - txt_Buffer.getHeight());
@@ -154,6 +153,7 @@ public class BleClientDataActivity extends BaseActivity<IBleClientDataAtView, Bl
     }
 
     public BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+
         @Override
         public void onPhyUpdate(BluetoothGatt gatt, int txPhy, int rxPhy, int status) {
             super.onPhyUpdate(gatt, txPhy, rxPhy, status);
@@ -210,7 +210,7 @@ public class BleClientDataActivity extends BaseActivity<IBleClientDataAtView, Bl
             super.onCharacteristicWrite(gatt, characteristic, status);
             LogUtil.e("onCharacteristicWrite");
             LogUtil.e("客户端写出数据:"+ ByteConvertUtil.bytesToHexString(characteristic.getValue()));
-            HandlerUtil.sendMessage(handler, HandlerMsgConfig.BLE_CLIENT_ONWRITE, characteristic.getValue());
+            HandlerUtil.sendMessage(handler, HandlerMsgConfig.BLE_CLIENT_SENDDATA, characteristic.getValue());
         }
 
         @Override
@@ -218,7 +218,7 @@ public class BleClientDataActivity extends BaseActivity<IBleClientDataAtView, Bl
             super.onCharacteristicChanged(gatt, characteristic);
             LogUtil.e("onCharacteristicChanged");
             LogUtil.e("收到服务端数据:"+ ByteConvertUtil.bytesToHexString(characteristic.getValue()));
-            HandlerUtil.sendMessage(handler, HandlerMsgConfig.BLE_SERVER_ONCHANGED, characteristic.getValue());
+            HandlerUtil.sendMessage(handler, HandlerMsgConfig.BLE_CLIENT_GETRESPONSEDATA, characteristic.getValue());
         }
 
         @Override

@@ -11,6 +11,9 @@ public class HandlerMsgConfig {
     public static final int BLUETOOTH_CLIENT_RECEIVEDATA = 2;
 
     //获取Ble服务
-    public static final int BLE_CLIENT_ONWRITE=1;
-    public static final int BLE_SERVER_ONCHANGED=2;
+    public static final int BLE_CLIENT_SENDDATA=1;
+    public static final int BLE_CLIENT_GETRESPONSEDATA=2;
+
+    public static final int BLE_SERVER_GETDATA=3;
+    public static final int BLE_SERVER_RESPONSEDATA=4;
 }

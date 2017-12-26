@@ -86,7 +86,6 @@ public class BleClientActivity extends BaseActivity<IBleClientAtView, BleClientA
 
 
     private void initBle() {
-
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             ToastUtil.showShort("不支持BLE");
             finish();
