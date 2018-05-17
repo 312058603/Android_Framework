@@ -3,6 +3,7 @@ package com.example.wpx.framework.http;
 
 import android.content.Context;
 import android.util.Log;
+
 import com.alibaba.fastjson.JSON;
 import com.example.wpx.framework.app.App;
 import com.example.wpx.framework.http.apiService.BaseApiService;
@@ -13,6 +14,7 @@ import com.example.wpx.framework.http.observer.BaseObserver;
 import com.example.wpx.framework.http.observer.DownLoadListener;
 import com.example.wpx.framework.http.observer.GetOrPostListener;
 import com.example.wpx.framework.util.LogUtil;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
@@ -99,7 +102,7 @@ public class RetrofitClient {
     }
 
     /**
-     * 初始化缓存
+     * 初始化http缓存文件
      *
      * @return
      */
@@ -143,6 +146,19 @@ public class RetrofitClient {
                         listener.onSuccess(JSON.parseObject(content, tClass));
                     }
                 });
+    }
+
+    /**
+     * get请求
+     *
+     * @param method
+     * @param parameters
+     * @param tClass
+     * @param listener
+     * @param <T>
+     */
+    public <T> void get(String method, Map<String, String> parameters, Context context, Class<T> tClass, GetOrPostListener<T> listener) {
+        this.get(method, parameters, context, false, tClass, listener);
     }
 
     /**
@@ -240,6 +256,20 @@ public class RetrofitClient {
     }
 
     /**
+     * post请求
+     *
+     * @param method
+     * @param parameters
+     * @param tClass
+     * @param listener
+     * @param <T>
+     */
+    public <T> void post(String method, Map<String, String> parameters, Context context, Class<T> tClass, GetOrPostListener<T> listener) {
+        this.post(method, parameters, context, false, tClass, listener);
+    }
+
+
+    /**
      * post提交json字符串
      *
      * @param method
@@ -271,6 +301,39 @@ public class RetrofitClient {
                     }
                 });
     }
+
+    /**
+     * post提交json字符串
+     *
+     * @param method
+     * @param context
+     * @param s
+     * @param tClass
+     * @param listener
+     * @param <S>
+     * @param <R>
+     */
+    public <S, R> void json(String method, Context context, S input, Class<R> tClass, GetOrPostListener<R> listener) {
+        String jsonStr = JSON.toJSONString(input);
+        RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), jsonStr);
+        apiService.executeJson(method, requestBody)
+                .compose(switchThread())
+                .subscribe(new BaseObserver<ResponseBody>(context) {
+                    @Override
+                    public void onNext(@NonNull ResponseBody responseBody) {
+                        String content = "";
+                        try {
+                            content = responseBody.string();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            LogUtil.e_Throwable(e);
+                        }
+                        LogUtil.e("ResponseBody", content);
+                        listener.onSuccess(JSON.parseObject(content, tClass));
+                    }
+                });
+    }
+
 
     /**
      * 组合Rx线程切换封装

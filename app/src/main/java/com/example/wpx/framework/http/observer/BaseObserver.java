@@ -25,6 +25,10 @@ public abstract class BaseObserver<T> implements Observer<T> {
     private ProgressDialog dialig;
     private boolean isShow;
 
+    public BaseObserver(Context context) {
+        this(context, false);
+    }
+
     public BaseObserver(Context context, boolean isShow) {
         this.context = new WeakReference<>(context);
         this.isShow = isShow;
