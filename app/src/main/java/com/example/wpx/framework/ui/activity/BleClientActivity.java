@@ -1,5 +1,6 @@
 package com.example.wpx.framework.ui.activity;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -85,6 +86,7 @@ public class BleClientActivity extends BaseActivity<IBleClientAtView, BleClientA
     }
 
 
+    @SuppressLint("NewApi")
     private void initBle() {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             ToastUtil.showShort("不支持BLE");

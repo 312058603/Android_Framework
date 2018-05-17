@@ -6,5 +6,5 @@ package com.example.wpx.framework.ui.view;
  * <h3>创建日期</h3> 2017/12/23 16:55
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
-public class IBluetooth2ClientAtView {
+public interface IBluetooth2ClientAtView {
 }

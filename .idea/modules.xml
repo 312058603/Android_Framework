@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android_Framework.iml" filepath="$PROJECT_DIR$/Android_Framework.iml" />
+      <module fileurl="file://F:\Android\androidTestPro\Android_Framework\Android_Framework.iml" filepath="F:\Android\androidTestPro\Android_Framework\Android_Framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://F:\Android\androidTestPro\Android_Framework\app\app.iml" filepath="F:\Android\androidTestPro\Android_Framework\app\app.iml" />
     </modules>
   </component>
 </project>

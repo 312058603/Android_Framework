@@ -11,7 +11,9 @@ import com.example.wpx.framework.ui.view.IBluetooth2ClientDataAtView;
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class Bluetooth2ClientDataAtPresenter extends BasePresenter<IBluetooth2ClientDataAtView>{
+
     public Bluetooth2ClientDataAtPresenter(BaseActivity context) {
         super(context);
     }
+
 }

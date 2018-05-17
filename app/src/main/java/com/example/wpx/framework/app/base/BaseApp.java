@@ -9,6 +9,7 @@ import android.support.multidex.MultiDexApplication;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * <h3>App应用基类</h3>
@@ -18,7 +19,8 @@ import java.util.List;
  */
 public class BaseApp extends MultiDexApplication {
 
-    public static List<Activity> activities = new LinkedList<>();
+    //activity栈 用于统一管理activity
+    public static Stack<Activity> activities = new Stack<>();
 
     //以下属性应用于整个应用程序，合理利用资源，减少资源浪费
     private static Context mContext;//上下文

@@ -12,7 +12,9 @@ import com.example.wpx.framework.ui.view.IBluetooth2ServerAtView;
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class Bluetooth2ServerAtPersenter extends BasePresenter<IBluetooth2ServerAtView> {
+
     public Bluetooth2ServerAtPersenter(BaseActivity context) {
         super(context);
     }
+
 }

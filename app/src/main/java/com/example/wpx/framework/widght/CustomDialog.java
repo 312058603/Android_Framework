@@ -65,4 +65,5 @@ public class CustomDialog extends Dialog {
         DisplayMetrics dm = res.getDisplayMetrics();
         return dm.density;
     }
+
 }

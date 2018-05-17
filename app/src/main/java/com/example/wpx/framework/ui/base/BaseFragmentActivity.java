@@ -7,7 +7,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+
 import com.example.wpx.framework.app.App;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public abstract class BaseFragmentActivity<V, T extends BaseFragmentPresenter<V>
 
     protected IntentFilter mFilter;
 
-    protected List<String> mActionList=new ArrayList<>();
+    protected List<String> mActionList = new ArrayList<>();
 
     protected T mPresenter;
 
@@ -65,14 +67,14 @@ public abstract class BaseFragmentActivity<V, T extends BaseFragmentPresenter<V>
     }
 
     private void addFilter(List<String> actionList) {
-        if(mActionList!=null && mActionList.size()>0){
+        if (mActionList != null && mActionList.size() > 0) {
             for (String action : actionList) {
                 mFilter.addAction(action);
             }
         }
     }
 
-    protected void initActions(){
+    protected void initActions() {
 
     }
 
@@ -83,7 +85,7 @@ public abstract class BaseFragmentActivity<V, T extends BaseFragmentPresenter<V>
     protected void findView() {
     }
 
-    protected void initIntentData(){
+    protected void initIntentData() {
     }
 
     protected void initData() {
@@ -101,9 +103,16 @@ public abstract class BaseFragmentActivity<V, T extends BaseFragmentPresenter<V>
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        App.activities.remove(this);
+
         if (mPresenter != null) {
             mPresenter.detachView();
         }
+        if (mReceiver != null) {
+            unregisterReceiver(mReceiver);
+        }
+
     }
 
 }

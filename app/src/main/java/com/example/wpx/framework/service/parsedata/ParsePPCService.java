@@ -1,9 +1,9 @@
-package com.example.wpx.framework.service.ParseData;
+package com.example.wpx.framework.service.parsedata;
 
 import android.app.IntentService;
 import android.content.Intent;
-import com.example.wpx.framework.config.PCCConfig;
-import com.example.wpx.framework.service.ParseData.model.PCCJsonBean;
+import com.example.wpx.framework.config.CitysConfig;
+import com.example.wpx.framework.service.parsedata.model.PCCJsonBean;
 import com.example.wpx.framework.util.ParsePPCDataUtil;
 import com.example.wpx.framework.util.LogUtil;
 import com.google.gson.Gson;
@@ -54,7 +54,7 @@ public class ParsePPCService extends IntentService {
          * 注意：如果是添加的JavaBean实体，则实体类需要实现 IPickerViewData 接口，
          * PickerView会通过getPickerViewText方法获取字符串显示出来。
          */
-        PCCConfig.optionsProviceItems = PCCJsonBean;
+        CitysConfig.optionsProviceItems = PCCJsonBean;
 
         for (int i = 0; i< PCCJsonBean.size(); i++){//遍历省份
             ArrayList<String> CityList = new ArrayList<>();//该省的城市列表（第二级）
@@ -84,12 +84,12 @@ public class ParsePPCService extends IntentService {
             /**
              * 添加城市数据
              */
-            PCCConfig.optionsCityItems.add(CityList);
+            CitysConfig.optionsCityItems.add(CityList);
 
             /**
              * 添加地区数据
              */
-            PCCConfig.optionsCountyItems.add(Province_AreaList);
+            CitysConfig.optionsCountyItems.add(Province_AreaList);
         }
     }
 

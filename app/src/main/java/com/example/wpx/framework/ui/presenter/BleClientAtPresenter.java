@@ -11,9 +11,7 @@ import com.example.wpx.framework.ui.view.IBleClientAtView;
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class BleClientAtPresenter extends BasePresenter<IBleClientAtView>{
-
     public BleClientAtPresenter(BaseActivity context) {
         super(context);
     }
-
 }

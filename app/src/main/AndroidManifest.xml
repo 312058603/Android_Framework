@@ -39,7 +39,7 @@
         <activity android:name=".ui.activity.BleServerActivity" />
 
         <!--城市器数据初始化-->
-        <service android:name=".service.ParseData.ParsePPCService" />
+        <service android:name=".service.parsedata.ParsePPCService" />
     </application>
 
 

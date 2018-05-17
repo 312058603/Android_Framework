@@ -9,7 +9,9 @@ import com.example.wpx.framework.ui.view.IBleClientDataAtView;
  */
 
 public class BleClientDataAtPresenter extends BasePresenter<IBleClientDataAtView>{
+
     public BleClientDataAtPresenter(BaseActivity context) {
         super(context);
     }
+
 }

@@ -35,7 +35,7 @@ public abstract class BaseObserver<T> implements Observer<T> {
         if (isShow) {
             if (dialig == null) {
                 dialig = new ProgressDialog(context.get());
-                dialig.setMessage("正在请求数据");
+                dialig.setMessage("正在请求数据,请稍后");
             }
             dialig.show();
         }

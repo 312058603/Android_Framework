@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.wpx.framework.app.App;
+import com.example.wpx.framework.app.base.BaseApp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,24 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
         initData();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        App.activities.add(this);
+        //判断是否使用MVP模式
+        presenter = createPresenter();
+        if (presenter != null) {
+            presenter.attachView((V) this);//因为之后所有的子类都要实现对应的View接口
+        }
+        //子类不再需要设置布局ID，也不再需要使用ButterKnife.bind()
+        setContentViewBefore();
+        setContentView(getContentViewId());
+        initReceiver();
+        findView();
+        initListener();
+        initIntentData();
+        initData();
+    }
 
     //在setContentView()调用之前调用，可以设置WindowFeature(如：this.requestWindowFeature(Window.FEATURE_NO_TITLE);)
     protected void setContentViewBefore() {
@@ -87,12 +106,16 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //移除对应的activity
+        App.activities.remove(this);
+
         if (presenter != null) {
             presenter.detachView();
         }
         if (receiver != null) {
             unregisterReceiver(receiver);
         }
+
     }
 
 }

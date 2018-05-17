@@ -9,7 +9,9 @@ import com.example.wpx.framework.ui.view.IBleServerAtView;
  */
 
 public class BleServerAtPresenter extends BasePresenter<IBleServerAtView>{
+
     public BleServerAtPresenter(BaseActivity context) {
         super(context);
     }
+
 }

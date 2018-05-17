@@ -7,6 +7,7 @@ package com.example.wpx.framework.http.model.Request;
  * <h3>著作权</h3> 2017 Shenzhen Guomaichangxing Technology Co., Ltd. Inc. All rights reserved.
  */
 public class TestJsonModel {
+
     private String pageSize;
     private String curPage;
 

@@ -17,9 +17,7 @@ import com.example.wpx.framework.R;
 import com.example.wpx.framework.adapter.MainAtAdapter;
 import com.example.wpx.framework.config.BroadcastFilterConfig;
 import com.example.wpx.framework.config.FileConfig;
-import com.example.wpx.framework.config.PCCConfig;
-import com.example.wpx.framework.hardware.bluetooth.ble.BleClient;
-import com.example.wpx.framework.hardware.bluetooth.ble.BleServer;
+import com.example.wpx.framework.config.CitysConfig;
 import com.example.wpx.framework.http.observer.DownLoadListener;
 import com.example.wpx.framework.http.observer.GetOrPostListener;
 import com.example.wpx.framework.http.RetrofitClient;
@@ -326,9 +324,9 @@ public class MainActivity extends BaseActivity<IMainAtView, MainTestAtPresenter>
             @Override
             public void onOptionsSelect(int options1, int options2, int options3, View v) {
                 //返回的分别是三个级别的选中位置
-                String tx = PCCConfig.optionsProviceItems.get(options1).getPickerViewText() +
-                        PCCConfig.optionsCityItems.get(options1).get(options2) +
-                        PCCConfig.optionsCountyItems.get(options1).get(options2).get(options3);
+                String tx = CitysConfig.optionsProviceItems.get(options1).getPickerViewText() +
+                        CitysConfig.optionsCityItems.get(options1).get(options2) +
+                        CitysConfig.optionsCountyItems.get(options1).get(options2).get(options3);
                 LogUtil.e("省市县设置:" + tx);
             }
         })
@@ -339,7 +337,7 @@ public class MainActivity extends BaseActivity<IMainAtView, MainTestAtPresenter>
                 .build();
         /*pvOptions.setPicker(options1Items);//一级选择器
         pvOptions.setPicker(options1Items, options2Items);//二级选择器*/
-        pvOptions.setPicker(PCCConfig.optionsProviceItems, PCCConfig.optionsCityItems, PCCConfig.optionsCountyItems);//三级选择器
+        pvOptions.setPicker(CitysConfig.optionsProviceItems, CitysConfig.optionsCityItems, CitysConfig.optionsCountyItems);//三级选择器
         pvOptions.show();
     }
 
